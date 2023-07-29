@@ -64,11 +64,9 @@ public:
 
     //  disk operations
 
-    //  TODO: this
-
     bool initFileSystem();
     bool loadFromDisk();
-    //  saveToDisk();
+    bool saveToDisk();
 };
 
 HardwareConfiguration::HardwareConfiguration()
@@ -114,6 +112,8 @@ String HardwareConfiguration::printToSerializedPrettyJson()
 
     return serializedJson;
 }
+
+//  TODO: these are common functionality in multiple config classes, extract these functions and inherit them.
 
 bool HardwareConfiguration::initFileSystem()
 {
@@ -215,6 +215,41 @@ bool HardwareConfiguration::loadFromDisk()
     }
 
     json.clear();
+
+    return true;
+}
+
+bool HardwareConfiguration::saveToDisk()
+{
+    File configFile = SPIFFS.open(configFileName, "w");
+    if (!configFile)
+    {
+        if (Serial)
+        {
+            Serial.println("1, ERR CONF WRITE FIO, Error when saving hardware configuration to disk: File IO error.");
+        }
+        return false;
+    }
+
+    int newFileSize = configFile.print(printToSerializedPrettyJson());
+
+    if (newFileSize < 0)
+    {
+        if (Serial)
+        {
+            Serial.println("1, ERR CONF WRITE FILE WRITE, Error when saving hardware configuration to disk: File write error.");
+        }
+        return false;
+    }
+    else
+    {
+        if (Serial)
+        {
+            Serial.println((String) "0, OK CONF WRITE, hardware configuration saved to disk successfully, new filesize: " + newFileSize + " bites.");
+        }
+    }
+
+    configFile.close();
 
     return true;
 }
