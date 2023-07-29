@@ -69,8 +69,8 @@ void loadHardwareConfig()
 
     if (!isFs || !hwConfig->loadFromDisk())
     {
-        Serial.println("1, ERR - Hardware configuration load failed, restarting in 5 seconds...");
-        delay(5000);
+        Serial.println("1, ERR - Hardware configuration load failed, restarting in 10 seconds...");
+        delay(10000);
         ESP.restart();
     }
 }
@@ -113,8 +113,8 @@ void loadNetworkConfig()
 
     if (!isFs || !networkConfig->loadFromDisk())
     {
-        Serial.println("1, ERR - Network configuration load failed, restarting in 5 seconds...");
-        delay(5000);
+        Serial.println("1, ERR - Network configuration load failed, restarting in 10 seconds...");
+        delay(10000);
         ESP.restart();
     }
 }
@@ -127,8 +127,8 @@ void connectToWifi()
 
     if (!wifiAdapter->tryUntilConnected())
     {
-        Serial.println("1, ERR - Wifi connection load failed, restarting in 5 seconds...");
-        delay(5000);
+        Serial.println("1, ERR - Wifi connection failed, restarting in 10 seconds...");
+        delay(10000);
         ESP.restart();
     }
 }
