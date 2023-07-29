@@ -1,0 +1,8 @@
+{
+    "debugMode": true,
+    "relayIoPin1": 25,
+    "relayIoPin2": 26,
+    "oneWireIoPin": 16,
+    "temperatureSensorOffsetCelsius": -2.2,
+    "temperatureTargetDefault": 50.00
+}
