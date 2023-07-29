@@ -36,6 +36,10 @@ void loop()
     delay(5000);
     hw->readTemperature();
     Serial.println("Temp: " + String(hw->getTemperature()));
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        wifiAdapter->tryUntilReConnected();
+    }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -117,6 +121,8 @@ void loadNetworkConfig()
 
 void connectToWifi()
 {
+    Serial.println("BOOT: Connecting to wifi network...");
+
     wifiAdapter = new WifiNetworkAdapter(networkConfig);
 
     if (!wifiAdapter->tryUntilConnected())
