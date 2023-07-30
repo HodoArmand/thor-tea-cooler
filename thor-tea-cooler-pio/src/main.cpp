@@ -1,17 +1,11 @@
-#include <Arduino.h>
-
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#include "ESPAsyncWebServer.h"
-#include "hardware/ttcHardware.hpp"
-#include "network/wifiNetworkAdapter.hpp"
-
 #include "main.hpp"
 
 HardwareConfiguration *hwConfig;
 TtcHardware *hw;
 NetworkConfiguration *networkConfig;
 WifiNetworkAdapter *wifiAdapter;
+ServerConfiguration *serverConfig;
+HttpApiServer *server;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------   Main   -------------------------------------------------------------------------------------------------------------------------------------------
@@ -24,9 +18,14 @@ void setup()
     initializeHardware();
     loadNetworkConfig();
     connectToWifi();
-    //  loadServerConfig();
-    //  initializeApiServer();
-    //  server.start();
+    loadServerConfig();
+    initializeApiServer();
+    int userOne = server->auth->getUserIndexById(1);
+    Serial.println(server->auth->users[userOne].toString());
+    server->auth->users[userOne].setName("The Blessed Machine");
+    Serial.println(server->auth->users[userOne].toString());
+
+    // server->start();
     //  loadOscClientConfig();
     //  initializeOscClient();
 }
@@ -131,4 +130,27 @@ void connectToWifi()
         delay(10000);
         ESP.restart();
     }
+}
+
+void loadServerConfig()
+{
+    serverConfig = new ServerConfiguration();
+
+    serverConfig->setConfigFileName("/serverConfig.json");
+    serverConfig->setConfigFileMaxSize(1024);
+
+    bool isFs = serverConfig->initFileSystem();
+
+    if (!isFs || !serverConfig->loadFromDisk())
+    {
+        Serial.println("1, ERR - Server configuration load failed, restarting in 10 seconds...");
+        delay(10000);
+        ESP.restart();
+    }
+}
+
+void initializeApiServer()
+{
+    server = new HttpApiServer(serverConfig);
+    server->initializeApi();
 }

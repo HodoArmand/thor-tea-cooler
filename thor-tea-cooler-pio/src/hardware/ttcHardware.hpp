@@ -131,13 +131,12 @@ inline bool TtcHardware::switchRelay(int relayNumber)
         if (relayNumber == 1)
         {
             relay1->toggle();
-            return true;
         }
         else if (relayNumber == 2)
         {
             relay2->toggle();
-            return true;
         }
+        return true;
     }
 }
 

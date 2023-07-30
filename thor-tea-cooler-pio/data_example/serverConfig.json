@@ -1,0 +1,10 @@
+{
+    "debugMode": true,
+    "port": 80,
+    "apiKeyLength": 50,
+    "apiThrottleIntervalMs": 1000,
+    "maxStoredUsers": 20,
+    "maxApiKeysPerUser": 3,
+    "maxApiKeysTotal": 60,
+    "selfHostMode": false
+}

@@ -3,3 +3,6 @@ thor-tea-cooler-pio/data/hwConfig.json
 thor-tea-cooler-pio/data/hardwareConfig.json
 thor-tea-cooler-pio/data/networkConfig.json
 thor-tea-cooler-pio/thor-tea-cooler-pio.code-workspace
+thor-tea-cooler-pio/data/serverConfig.json
+thor-tea-cooler-pio/data/users.json
+thor-tea-cooler-pio/data/apiKeys.json
