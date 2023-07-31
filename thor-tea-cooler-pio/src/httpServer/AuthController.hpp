@@ -75,8 +75,6 @@ public:
     String loginUser(String userName, String password);
     bool logoutUser(int userId);
     bool editUser(int userId, String userName, String password);
-    bool editUser(int userId, String userName);
-    bool editUser(int userId, String password);
     bool deleteUser(int userId);
 };
 
@@ -686,30 +684,6 @@ inline bool AuthController::editUser(int userId, String userName, String passwor
 
     users[userRamIndex].setName(userName);
     users[userRamIndex].setPassword(password);
-
-    if (!saveUsersToDisk())
-    {
-        return false;
-    }
-
-    return true;
-}
-
-inline bool AuthController::editUser(int userId, String userName)
-{
-    User user = findUserById(userId);
-    if (user.getId() == -1)
-    {
-        return false;
-    }
-    if (!isUserNameUnique(userName, user.getId()))
-    {
-        return false;
-    }
-
-    int userRamIndex = getUserIndexById(user.getId());
-
-    users[userRamIndex].setName(userName);
 
     if (!saveUsersToDisk())
     {
