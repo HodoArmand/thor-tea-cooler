@@ -1,16 +1,11 @@
 #include "serverConfiguration.hpp"
 #include "User.hpp"
+#include "ApiKey.hpp"
 
 #include <iostream>
 #include <vector>
 
 using namespace std;
-
-struct ApiKey
-{
-    int userId;
-    String key;
-};
 
 enum RegisterUserResult
 {

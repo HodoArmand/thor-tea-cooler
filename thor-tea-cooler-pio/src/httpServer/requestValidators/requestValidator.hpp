@@ -4,8 +4,17 @@
 #include <vector>
 #include <algorithm>
 #include <StringSplitter.h>
+#include <ESPAsyncWebServer.h>
+
+#include "httpServer/ApiKey.hpp"
 
 using namespace std;
+
+struct RequestHeader
+{
+    String key;
+    String value;
+};
 
 class RequestValidator
 {
@@ -36,6 +45,9 @@ public:
     bool isSecureAddress(String string_);
     bool isIpv4Address(String string_);
     bool isIpv4AddressShort(String string_);
+
+    vector<RequestHeader> processRequestHeader(AsyncWebServerRequest *request);
+    bool isApiHeaderValid(vector<RequestHeader> headers);
 };
 
 RequestValidator::RequestValidator()
@@ -270,4 +282,47 @@ inline bool RequestValidator::isIpv4AddressShort(String string_)
     }
 
     return true;
+}
+
+inline vector<RequestHeader> RequestValidator::processRequestHeader(AsyncWebServerRequest *request)
+{
+    vector<RequestHeader> requestHeaderValues;
+    int headerCount = request->headers();
+    if (headerCount != 0)
+    {
+        requestHeaderValues.reserve(headerCount);
+        RequestHeader headerValue;
+        for (size_t i = 0; i < headerCount; i++)
+        {
+            AsyncWebHeader *header = request->getHeader(i);
+            headerValue.key = String(request->headerName(i));
+            headerValue.value = String(request->header(i));
+            requestHeaderValues.push_back(headerValue);
+        }
+    }
+
+    return requestHeaderValues;
+}
+
+inline bool RequestValidator::isApiHeaderValid(vector<RequestHeader> headers)
+{
+    bool hasApiKey, isUrlEncodedrequest, acceptsAppJson = false;
+
+    for (RequestHeader header : headers)
+    {
+        if (header.key == "Content-Type" && header.value == R"(application/x-www-form-urlencoded)")
+        {
+            isUrlEncodedrequest = true;
+        }
+        else if (header.key == "Accept" && header.value == R"(application/json)")
+        {
+            isUrlEncodedrequest = true;
+        }
+        else if (header.key == "Authorization" && header.key.substring(0, 6) == "Bearer|")
+        {
+            hasApiKey = true;
+        }
+    }
+
+    return hasApiKey && isUrlEncodedrequest && acceptsAppJson;
 }
