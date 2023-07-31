@@ -706,6 +706,8 @@ inline bool AuthController::deleteUser(int userId)
         return false;
     }
 
+    logoutUser(userId);
+    
     int userRamIndex = getUserIndexById(user.getId());
 
     users.erase(users.begin() + userRamIndex);
