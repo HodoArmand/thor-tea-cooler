@@ -46,7 +46,7 @@ public:
     bool isIpv4Address(String string_);
     bool isIpv4AddressShort(String string_);
 
-    vector<RequestHeader> processRequestHeader(AsyncWebServerRequest *request);
+    bool isLoginApiHeaderValid(vector<RequestHeader> headers);
     bool isApiHeaderValid(vector<RequestHeader> headers);
 };
 
@@ -284,24 +284,23 @@ inline bool RequestValidator::isIpv4AddressShort(String string_)
     return true;
 }
 
-inline vector<RequestHeader> RequestValidator::processRequestHeader(AsyncWebServerRequest *request)
+inline bool RequestValidator::isLoginApiHeaderValid(vector<RequestHeader> headers)
 {
-    vector<RequestHeader> requestHeaderValues;
-    int headerCount = request->headers();
-    if (headerCount != 0)
+    bool isUrlEncodedrequest, acceptsAppJson = false;
+
+    for (RequestHeader header : headers)
     {
-        requestHeaderValues.reserve(headerCount);
-        RequestHeader headerValue;
-        for (size_t i = 0; i < headerCount; i++)
+        if (header.key == "Content-Type" && header.value == R"(application/x-www-form-urlencoded)")
         {
-            AsyncWebHeader *header = request->getHeader(i);
-            headerValue.key = String(request->headerName(i));
-            headerValue.value = String(request->header(i));
-            requestHeaderValues.push_back(headerValue);
+            isUrlEncodedrequest = true;
+        }
+        else if (header.key == "Accept" && header.value == R"(application/json)")
+        {
+            isUrlEncodedrequest = true;
         }
     }
 
-    return requestHeaderValues;
+    return isUrlEncodedrequest && acceptsAppJson;
 }
 
 inline bool RequestValidator::isApiHeaderValid(vector<RequestHeader> headers)
