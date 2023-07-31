@@ -385,7 +385,7 @@ inline DynamicJsonDocument AuthController::printApiKeysToJson()
     {
         JsonObject apiKeyRow = json.createNestedObject();
         apiKeyRow["userId"] = apiKey.userId;
-        apiKeyRow["key"] = apiKey.key;
+        apiKeyRow["apiKey"] = apiKey.key;
     }
 
     return json;
@@ -455,7 +455,7 @@ bool AuthController::loadApiKeysFromDisk()
         for (JsonObject apiKeyRow : jsonTableOfApiKeys)
         {
             tempApiKey.userId = apiKeyRow["userId"].as<int>();
-            tempApiKey.key = apiKeyRow["key"].as<String>();
+            tempApiKey.key = apiKeyRow["apiKey"].as<String>();
             apiKeys.push_back(tempApiKey);
         }
 

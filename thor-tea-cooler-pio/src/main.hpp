@@ -19,3 +19,5 @@ void initializeApiServer();
 // void server.start();
 // void loadOscClientConfig();
 // void initializeOscClient();
+
+void runAuthTest();
