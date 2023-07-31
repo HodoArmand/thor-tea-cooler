@@ -9,6 +9,7 @@ private:
 
 public:
     User(/* args */);
+    User(String name_, String password_);
     User(int id_, String name_, String password_);
     User(String templateType);
     ~User();
@@ -29,9 +30,11 @@ User::User()
 {
 }
 
-inline String User::toString()
+User::User(String name_, String password_)
 {
-    return ("Id: " + String(id) + " Name: " + name + " Password:" + password);
+    id = -2;
+    name = name_;
+    password = password_;
 }
 
 User::User(int id_, String name_, String password_)
@@ -49,6 +52,11 @@ User::User(String templateType)
         name = "Error: user not found";
         password = "Error: user not found";
     }
+}
+
+inline String User::toString()
+{
+    return ("Id: " + String(id) + " Name: " + name + " Password:" + password);
 }
 
 User::~User()

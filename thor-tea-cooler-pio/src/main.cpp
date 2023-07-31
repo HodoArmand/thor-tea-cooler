@@ -20,11 +20,6 @@ void setup()
     connectToWifi();
     loadServerConfig();
     initializeApiServer();
-    int userOne = server->auth->getUserIndexById(1);
-    Serial.println(server->auth->users[userOne].toString());
-    server->auth->users[userOne].setName("The Blessed Machine");
-    Serial.println(server->auth->users[userOne].toString());
-
     // server->start();
     //  loadOscClientConfig();
     //  initializeOscClient();
@@ -32,7 +27,7 @@ void setup()
 
 void loop()
 {
-    delay(5000);
+    delay(5000);        // TODO: replace this with timer
     hw->readTemperature();
     Serial.println("Temp: " + String(hw->getTemperature()));
     if (WiFi.status() != WL_CONNECTED)

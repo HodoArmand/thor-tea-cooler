@@ -36,7 +36,7 @@ HttpApiServer::HttpApiServer(ServerConfiguration *config_)
 {
     auth = new AuthController(config_);
 
-    if (auth->initFileSystem() && auth->loadUsersFromDisk())
+    if (auth->initFileSystem() && auth->loadUsersFromDisk() && auth->loadApiKeysFromDisk())
     {
         setState(AUTH_LOADED);
         server = new AsyncWebServer(config_->getPort());
@@ -52,8 +52,7 @@ HttpApiServer::~HttpApiServer()
 }
 
 void HttpApiServer::initializeApi()
-{
-    //  TODO: this
+{    
     setState(SRV_INITIALIZED);
 }
 
