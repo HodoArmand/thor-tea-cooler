@@ -1,3 +1,4 @@
+#pragma once
 
 #include "requestValidator.hpp"
 #include "requestBodyParameter.hpp"
@@ -25,6 +26,10 @@ public:
 
     bool hasBodyParam(String paramName);
     String getBodyParamValueByName(String paramName);
+
+    bool hasHeader(String headerName);
+    String getHeaderValueByName(String headerName);
+    String getAuthApiKey();
 };
 
 Request::Request(AsyncWebServerRequest *request)
@@ -35,7 +40,6 @@ Request::Request(AsyncWebServerRequest *request)
     contentLength = request->contentLength();
     url = request->url();
     validationErrors.clear();
-    validationErrors.resize(1);
 }
 
 Request::~Request()
@@ -111,4 +115,41 @@ String Request::getBodyParamValueByName(String paramName)
     }
 
     return "";
+}
+
+bool Request::hasHeader(String headerName)
+{
+    for (RequestHeader header : headers)
+    {
+        if (header.key == headerName)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+String Request::getHeaderValueByName(String headerName)
+{
+    for (RequestHeader header : headers)
+    {
+        if (header.key == headerName)
+        {
+            return header.value;
+        }
+    }
+
+    return "";
+}
+String Request::getAuthApiKey()
+{
+    if (hasHeader("Authorization"))
+    {
+        String apiKey = getHeaderValueByName("Authorization");
+        return apiKey.substring(7, apiKey.length());
+    }
+    else
+    {
+        return "";
+    }
 }

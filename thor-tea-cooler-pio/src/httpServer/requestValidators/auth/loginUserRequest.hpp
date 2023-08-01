@@ -1,7 +1,9 @@
 #include "httpServer/requestValidators/Request.hpp"
 
-class LoginUserRequest : Request
+class LoginUserRequest : public Request
 {
+    using Request::Request;
+
 public:
     bool validate();
 };

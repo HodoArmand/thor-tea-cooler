@@ -1,3 +1,5 @@
+#pragma once
+
 #include "serverConfiguration.hpp"
 #include "User.hpp"
 #include "ApiKey.hpp"
@@ -15,7 +17,7 @@ enum RegisterUserResult
     REG_USR_DISK_ERR
 };
 
-class AuthController
+class Authorization
 {
 private:
     bool debugMode;
@@ -31,8 +33,8 @@ private:
     int maxApiKeyFileSize = 2048;
 
 public:
-    AuthController(ServerConfiguration *config);
-    ~AuthController();
+    Authorization(ServerConfiguration *config);
+    ~Authorization();
 
     vector<User> users;
 
@@ -71,9 +73,11 @@ public:
     bool logoutUser(int userId);
     bool editUser(int userId, String userName, String password);
     bool deleteUser(int userId);
+
+    void regenerateIds();
 };
 
-AuthController::AuthController(ServerConfiguration *config)
+Authorization::Authorization(ServerConfiguration *config)
 {
     debugMode = config->getDebugMode();
     apiKeyLength = config->getApiKeyLength();
@@ -87,11 +91,11 @@ AuthController::AuthController(ServerConfiguration *config)
     maxApiKeyFileSize = maxStoredUsers * 150;
 }
 
-AuthController::~AuthController()
+Authorization::~Authorization()
 {
 }
 
-bool AuthController::initFileSystem()
+bool Authorization::initFileSystem()
 {
     if (!SPIFFS.begin())
     {
@@ -113,7 +117,7 @@ bool AuthController::initFileSystem()
 
 /*  TODO: add encryption to user pw data*/
 
-bool AuthController::loadUsersFromDisk()
+bool Authorization::loadUsersFromDisk()
 {
     File usersFile = SPIFFS.open("/users.json", "r");
     if (!usersFile)
@@ -192,7 +196,7 @@ bool AuthController::loadUsersFromDisk()
     return true;
 }
 
-DynamicJsonDocument AuthController::printUsersToJson()
+DynamicJsonDocument Authorization::printUsersToJson()
 {
     DynamicJsonDocument json(maxUserFileSize);
 
@@ -207,7 +211,7 @@ DynamicJsonDocument AuthController::printUsersToJson()
     return json;
 }
 
-String AuthController::printUsersToSerializedPrettyJson()
+String Authorization::printUsersToSerializedPrettyJson()
 {
     DynamicJsonDocument json = printUsersToJson();
     String serializedJson;
@@ -219,7 +223,7 @@ String AuthController::printUsersToSerializedPrettyJson()
     return serializedJson;
 }
 
-bool AuthController::saveUsersToDisk()
+bool Authorization::saveUsersToDisk()
 {
     File configFile = SPIFFS.open("/users.json", "w");
     if (!configFile)
@@ -254,7 +258,7 @@ bool AuthController::saveUsersToDisk()
     return true;
 }
 
-inline User AuthController::findUserById(int id_)
+inline User Authorization::findUserById(int id_)
 {
     for (User user : users)
     {
@@ -269,7 +273,7 @@ inline User AuthController::findUserById(int id_)
     return userNotFound;
 }
 
-inline User AuthController::findUserByName(String name_)
+inline User Authorization::findUserByName(String name_)
 {
     for (User user : users)
     {
@@ -284,7 +288,7 @@ inline User AuthController::findUserByName(String name_)
     return userNotFound;
 }
 
-inline User AuthController::findUserByApiKey(String apiKey_)
+inline User Authorization::findUserByApiKey(String apiKey_)
 {
     int userId = -1;
     for (ApiKey apiKey : apiKeys)
@@ -308,7 +312,7 @@ inline User AuthController::findUserByApiKey(String apiKey_)
     }
 }
 
-inline int AuthController::getUserIndexById(int id_)
+inline int Authorization::getUserIndexById(int id_)
 {
     for (size_t i = 0; i < users.size(); i++)
     {
@@ -321,7 +325,7 @@ inline int AuthController::getUserIndexById(int id_)
     return -1;
 }
 
-inline int AuthController::getUserIndexByName(String name_)
+inline int Authorization::getUserIndexByName(String name_)
 {
     for (size_t i = 0; i < users.size(); i++)
     {
@@ -334,7 +338,7 @@ inline int AuthController::getUserIndexByName(String name_)
     return -1;
 }
 
-inline bool AuthController::isUserNameUnique(String name_)
+inline bool Authorization::isUserNameUnique(String name_)
 {
     for (User user : users)
     {
@@ -347,7 +351,7 @@ inline bool AuthController::isUserNameUnique(String name_)
     return true;
 }
 
-inline bool AuthController::isUserNameUnique(String name_, int userId_)
+inline bool Authorization::isUserNameUnique(String name_, int userId_)
 {
     for (User user : users)
     {
@@ -360,7 +364,7 @@ inline bool AuthController::isUserNameUnique(String name_, int userId_)
     return true;
 }
 
-inline bool AuthController::isPasswordValid(String password_)
+inline bool Authorization::isPasswordValid(String password_)
 {
     if (password_.length() >= 8 && password_.length() <= 32)
     {
@@ -372,7 +376,7 @@ inline bool AuthController::isPasswordValid(String password_)
     }
 }
 
-inline DynamicJsonDocument AuthController::printApiKeysToJson()
+inline DynamicJsonDocument Authorization::printApiKeysToJson()
 {
     DynamicJsonDocument json(maxApiKeyFileSize);
 
@@ -386,7 +390,7 @@ inline DynamicJsonDocument AuthController::printApiKeysToJson()
     return json;
 }
 
-inline String AuthController::printApiKeysToSerializedPrettyJson()
+inline String Authorization::printApiKeysToSerializedPrettyJson()
 {
     DynamicJsonDocument json = printApiKeysToJson();
     String serializedJson;
@@ -398,7 +402,7 @@ inline String AuthController::printApiKeysToSerializedPrettyJson()
     return serializedJson;
 }
 
-bool AuthController::loadApiKeysFromDisk()
+bool Authorization::loadApiKeysFromDisk()
 {
     File apiKeysFile = SPIFFS.open("/apiKeys.json", "r");
     if (!apiKeysFile)
@@ -476,7 +480,7 @@ bool AuthController::loadApiKeysFromDisk()
     return true;
 }
 
-bool AuthController::saveApiKeysToDisk()
+bool Authorization::saveApiKeysToDisk()
 {
     File apiKeysFile = SPIFFS.open("/apiKeys.json", "w");
     if (!apiKeysFile)
@@ -511,7 +515,7 @@ bool AuthController::saveApiKeysToDisk()
     return true;
 }
 
-String AuthController::generateApiKey()
+String Authorization::generateApiKey()
 {
     const char chars[35] = "123456789abcdefghijklmnopqrstuvwzy";
     String randomString = "";
@@ -523,7 +527,7 @@ String AuthController::generateApiKey()
     return randomString;
 }
 
-bool AuthController::isApiKeyUnique(String apiKey_)
+bool Authorization::isApiKeyUnique(String apiKey_)
 {
     for (ApiKey apiKey : apiKeys)
     {
@@ -536,7 +540,7 @@ bool AuthController::isApiKeyUnique(String apiKey_)
     return true;
 }
 
-inline void AuthController::makeApiKeyUnique(int apiKeyIndex)
+inline void Authorization::makeApiKeyUnique(int apiKeyIndex)
 {
     if (!(apiKeyIndex >= apiKeys.size()))
     {
@@ -544,7 +548,7 @@ inline void AuthController::makeApiKeyUnique(int apiKeyIndex)
     }
 }
 
-inline bool AuthController::isApiKeyValid(String apiKey_)
+inline bool Authorization::isApiKeyValid(String apiKey_)
 {
     for (ApiKey apiKey : apiKeys)
     {
@@ -557,7 +561,7 @@ inline bool AuthController::isApiKeyValid(String apiKey_)
     return false;
 }
 
-inline bool AuthController::clearApiKeys()
+inline bool Authorization::clearApiKeys()
 {
     apiKeys.clear();
     apiKeys.shrink_to_fit();
@@ -570,7 +574,7 @@ inline bool AuthController::clearApiKeys()
     return true;
 }
 
-inline RegisterUserResult AuthController::registerUser(String userName, String password)
+inline RegisterUserResult Authorization::registerUser(String userName, String password)
 {
     int nextId = users.size();
 
@@ -599,7 +603,7 @@ inline RegisterUserResult AuthController::registerUser(String userName, String p
     }
 }
 
-inline String AuthController::loginUser(String userName, String password)
+inline String Authorization::loginUser(String userName, String password)
 {
     User loginUser(userName, password);
     int userId = -1;
@@ -645,7 +649,7 @@ inline String AuthController::loginUser(String userName, String password)
     return apiKeys.back().key;
 }
 
-inline bool AuthController::logoutUser(int userId)
+inline bool Authorization::logoutUser(int userId)
 {
     for (int i = 0; i < apiKeys.size(); i++)
     {
@@ -663,7 +667,7 @@ inline bool AuthController::logoutUser(int userId)
     return true;
 }
 
-inline bool AuthController::editUser(int userId, String userName, String password)
+inline bool Authorization::editUser(int userId, String userName, String password)
 {
     User user = findUserById(userId);
     if (user.getId() == -1)
@@ -688,7 +692,7 @@ inline bool AuthController::editUser(int userId, String userName, String passwor
     return true;
 }
 
-inline bool AuthController::deleteUser(int userId)
+inline bool Authorization::deleteUser(int userId)
 {
     if (users.size() <= 1)
     {
@@ -702,11 +706,12 @@ inline bool AuthController::deleteUser(int userId)
     }
 
     logoutUser(userId);
-    
+
     int userRamIndex = getUserIndexById(user.getId());
 
     users.erase(users.begin() + userRamIndex);
     users.shrink_to_fit();
+    regenerateIds();
 
     if (!saveUsersToDisk())
     {
@@ -714,4 +719,14 @@ inline bool AuthController::deleteUser(int userId)
     }
 
     return true;
+}
+
+inline void Authorization::regenerateIds()
+{
+    int i = 0;
+    for (User user : users)
+    {
+        user.setId(i);
+        i++;
+    }
 }

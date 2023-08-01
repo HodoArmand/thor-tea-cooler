@@ -1,7 +1,10 @@
 #include "httpServer/requestValidators/Request.hpp"
 
-class EditUserRequest : Request
+class EditUserRequest : public Request
 {
+
+    using Request::Request;
+
 public:
     bool validate();
 };
@@ -11,18 +14,6 @@ bool EditUserRequest::validate()
     if (!validator.isApiHeaderValid(headers))
     {
         addValidationError("Bad API header.");
-    }
-    if (!hasBodyParam("userId"))
-    {
-        addValidationError("Missing 'userId' request parameter.");
-    }
-    else
-    {
-        String userId = getBodyParamValueByName("userId");
-        if (!(validator.isStringInteger(userId) && userId.toInt() >= 0))
-        {
-            addValidationError("User id must be a positive integer.");
-        }
     }
 
     if (!hasBodyParam("name") && !hasBodyParam("password"))

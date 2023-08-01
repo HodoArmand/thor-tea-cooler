@@ -21,12 +21,12 @@ void setup()
     loadServerConfig();
     initializeApiServer();
 
-    if (serverConfig->getDebugMode())
-    {
-        runAuthTest();
-    }
+    // if (serverConfig->getDebugMode())
+    // {
+    //     runAuthTest();
+    // }
 
-    // server->start();
+    server->start();
     //  loadOscClientConfig();
     //  initializeOscClient();
 }

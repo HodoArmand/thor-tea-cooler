@@ -1,7 +1,10 @@
 #include "httpServer/requestValidators/Request.hpp"
 
-class RegisterUserRequest : Request
+class RegisterUserRequest : public Request
 {
+
+    using Request::Request;
+
 public:
     bool validate();
 };

@@ -1,7 +1,9 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-#include "AuthController.hpp"
+#include "Authorization.hpp"
+
+#include "routing/AuthRouter.hpp"
 
 enum ServerState
 {
@@ -22,11 +24,15 @@ public:
     HttpApiServer(ServerConfiguration *config_);
     ~HttpApiServer();
 
-    AuthController *auth;
+    Authorization *auth;
     AsyncWebServer *server;
 
     ServerState getState() const { return state; }
     void setState(const ServerState &state_) { state = state_; }
+
+    //  Route
+
+    AuthRouter *authRouter;
 
     void initializeApi();
     void start();
@@ -34,7 +40,7 @@ public:
 
 HttpApiServer::HttpApiServer(ServerConfiguration *config_)
 {
-    auth = new AuthController(config_);
+    auth = new Authorization(config_);
 
     if (auth->initFileSystem() && auth->loadUsersFromDisk() && auth->loadApiKeysFromDisk())
     {
@@ -52,7 +58,8 @@ HttpApiServer::~HttpApiServer()
 }
 
 void HttpApiServer::initializeApi()
-{    
+{
+    authRouter = new AuthRouter(server, auth);
     setState(SRV_INITIALIZED);
 }
 
@@ -60,4 +67,5 @@ void HttpApiServer::start()
 {
     server->begin();
     setState(SRV_RUNNING);
+    Serial.println("Server initialized, running...");
 }

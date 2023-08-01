@@ -1,7 +1,10 @@
 #include "httpServer/requestValidators/Request.hpp"
 
-class LogoutUserRequest : Request
+class LogoutUserRequest : public Request
 {
+    
+    using Request::Request;
+
 public:
     bool validate();
 };

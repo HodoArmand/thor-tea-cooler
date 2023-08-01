@@ -296,7 +296,7 @@ inline bool RequestValidator::isLoginApiHeaderValid(vector<RequestHeader> header
         }
         else if (header.key == "Accept" && header.value == R"(application/json)")
         {
-            isUrlEncodedrequest = true;
+            acceptsAppJson = true;
         }
     }
 
@@ -315,7 +315,7 @@ inline bool RequestValidator::isApiHeaderValid(vector<RequestHeader> headers)
         }
         else if (header.key == "Accept" && header.value == R"(application/json)")
         {
-            isUrlEncodedrequest = true;
+            acceptsAppJson = true;
         }
         else if (header.key == "Authorization" && header.key.substring(0, 6) == "Bearer|")
         {
