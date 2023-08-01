@@ -1,3 +1,5 @@
+#pragma once
+
 #include "relay.hpp"
 #include "hardware/hardwareConfiguration.hpp"
 #include "hardware/ds18B20-universal-driver.hpp"

@@ -4,6 +4,7 @@
 #include "Authorization.hpp"
 
 #include "routing/AuthRouter.hpp"
+#include "routing/HardwareRouter.hpp"
 
 enum ServerState
 {
@@ -21,9 +22,10 @@ private:
     ServerState state = SRV_UNINITIALIZED;
 
 public:
-    HttpApiServer(ServerConfiguration *config_);
+    HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_);
     ~HttpApiServer();
 
+    TtcHardware *hw;
     Authorization *auth;
     AsyncWebServer *server;
 
@@ -33,14 +35,16 @@ public:
     //  Route
 
     AuthRouter *authRouter;
+    HardwareRouter *hwRouter;
 
     void initializeApi();
     void start();
 };
 
-HttpApiServer::HttpApiServer(ServerConfiguration *config_)
+HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_)
 {
     auth = new Authorization(config_);
+    hw = hw_;
 
     if (auth->initFileSystem() && auth->loadUsersFromDisk() && auth->loadApiKeysFromDisk())
     {
@@ -60,6 +64,8 @@ HttpApiServer::~HttpApiServer()
 void HttpApiServer::initializeApi()
 {
     authRouter = new AuthRouter(server, auth);
+    hwRouter = new HardwareRouter(server, hw, auth);
+
     setState(SRV_INITIALIZED);
 }
 
