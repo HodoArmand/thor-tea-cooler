@@ -34,8 +34,12 @@ void setup()
 void loop()
 {
     delay(5000); // TODO: replace this with timer
-    hw->readTemperature();
-    Serial.println("Temp: " + String(hw->getTemperature()));
+    hw->readHardwareState();
+    if (hwConfig->getDebugMode())
+    {
+        Serial.println(hw->getHardwareStateAsJsonString());
+    }
+
     if (WiFi.status() != WL_CONNECTED)
     {
         wifiAdapter->tryUntilReConnected();
@@ -160,15 +164,15 @@ void initializeApiServer()
 
 void runAuthTest()
 {
-    server->auth->registerUser("fish", "Vascodagama999");   //  ok
-    server->auth->registerUser("fish", "Vascodagama999");   //  0, user already exists (!unique uName)
-    server->auth->registerUser("fish2", "Vascodagama999");  //  ok
+    server->auth->registerUser("fish", "Vascodagama999");  //  ok
+    server->auth->registerUser("fish", "Vascodagama999");  //  0, user already exists (!unique uName)
+    server->auth->registerUser("fish2", "Vascodagama999"); //  ok
     Serial.println(server->auth->printUsersToSerializedPrettyJson());
 
-    Serial.println(server->auth->loginUser("fish", "Vascodagama999"));  //  already has apiKey with default config, else new apikey
-    Serial.println(server->auth->loginUser("fish", "Vascodagama999"));  //  already has apiKey
+    Serial.println(server->auth->loginUser("fish", "Vascodagama999")); //  already has apiKey with default config, else new apikey
+    Serial.println(server->auth->loginUser("fish", "Vascodagama999")); //  already has apiKey
 
-    Serial.println(server->auth->loginUser("fish2", "Vascodagama999")); //  new user, doesn't have apikey, new generated
+    Serial.println(server->auth->loginUser("fish2", "Vascodagama999"));           //  new user, doesn't have apikey, new generated
     Serial.println(server->auth->loginUser("fishDoesntExist", "Vascodagama999")); //  user doesn't exist, returned 0
     Serial.println(server->auth->printApiKeysToSerializedPrettyJson());
 }

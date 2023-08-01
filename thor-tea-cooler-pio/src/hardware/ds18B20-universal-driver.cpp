@@ -216,7 +216,7 @@ void DsDriver::readSensortemperaturesInCelsius()
             temperatureInCelsius = temperatureSensors.getTempCByIndex(i);
             if (Serial && this->isDebug)
             {
-                Serial.println(temperatureInCelsius);
+                Serial.println("Measured value: "+ String(temperatureInCelsius));
             }
             if (temperatureInCelsius != -127)
             {

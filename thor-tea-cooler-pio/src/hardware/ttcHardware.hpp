@@ -1,5 +1,7 @@
 #pragma once
 
+#include <math.h>
+
 #include "relay.hpp"
 #include "hardware/hardwareConfiguration.hpp"
 #include "hardware/ds18B20-universal-driver.hpp"
@@ -27,6 +29,8 @@ private:
     float targetTemperature;
 
     TtcHardwareMode mode = manual;
+
+    float roundFloatToDecimals(float num, int decimals);
 
 public:
     TtcHardware(HardwareConfiguration *hwConfig);
@@ -56,7 +60,16 @@ public:
 
     void readHardwareState();
     void logHardwareState();
+
+    String getHardwareStateAsJsonString();
 };
+
+inline float TtcHardware::roundFloatToDecimals(float number, int decimals)
+{
+    int decimalMultiplier = (int)pow10f(decimals);
+    float decimalDivider = pow10f(decimals);
+    return ((int)(number * decimalMultiplier + .5) / decimalDivider);
+}
 
 TtcHardware::TtcHardware(HardwareConfiguration *hwConfig)
 {
@@ -64,6 +77,7 @@ TtcHardware::TtcHardware(HardwareConfiguration *hwConfig)
     relay2 = new Relay(hwConfig->getRelayIoPin2());
     oneWire = OneWire(hwConfig->getOneWireIoPin());
     ds = DsDriver(hwConfig->getTemperatureSensorOffsetCelsius(), oneWire, hwConfig->getDebugMode());
+    setTargetTemperature(hwConfig->getTemperatureTargetDefault());
     ds.scanSensors();
 }
 
@@ -99,7 +113,7 @@ String TtcHardware::getModeAsString()
 
 void TtcHardware::readTemperature()
 {
-    temperature = ds.readSensortemperatureInCelsiusByIndex(0);
+    temperature = roundFloatToDecimals(ds.readSensortemperatureInCelsiusByIndex(0), 2);
 }
 
 void TtcHardware::setRelays(bool rel1State, bool rel2State)
@@ -174,9 +188,26 @@ void TtcHardware::readHardwareState()
 void TtcHardware::logHardwareState()
 {
     Serial.println("\nTTC state:\n");
-    Serial.println("Relay 1 state: " + relay1->getState());
-    Serial.println("Relay 2 state: " + relay2->getState());
+    Serial.println("Relay 1 state: " + String(relay1->getState()) + " on/off: " + relay1->isOn());
+    Serial.println("Relay 2 state: " + String(relay2->getState()) + " on/off: " + relay2->isOn());
     Serial.println("Temperature: " + String(getTemperature()) + " C");
     Serial.println("Temperature target: " + String(getTargetTemperature()) + " C");
     Serial.println("Mode: " + getModeAsString());
+}
+
+String TtcHardware::getHardwareStateAsJsonString()
+{
+    DynamicJsonDocument json(2048);
+    String serializedJson;
+    json["relay1"] = relay1->isOn();
+    json["relay2"] = relay2->isOn();
+    json["temperature"] = serialized(String(getTemperature(), 2));
+    json["targetTemperature"] = serialized(String(getTargetTemperature(), 2));
+    json["state"] = getModeAsString();
+
+    serializeJsonPretty(json, serializedJson);
+
+    json.clear();
+
+    return serializedJson;
 }
