@@ -32,13 +32,18 @@ private:
 
     float roundFloatToDecimals(float num, int decimals);
 
+    vector<String> validModes = {"manual", "autoReady", "autoCooling", "autoFinished"};
+
 public:
     TtcHardware(HardwareConfiguration *hwConfig);
     Relay *relay1;
     Relay *relay2;
 
+    vector<String> getValidModes() const { return validModes; }
+
     TtcHardwareMode getMode() const { return mode; }
     String getModeAsString();
+    TtcHardwareMode stringToTtcHardwareMode(String mode_);
     void setMode(const TtcHardwareMode &mode_) { mode = mode_; }
 
     ~TtcHardware();
@@ -108,6 +113,30 @@ String TtcHardware::getModeAsString()
     default:
         return String("manual");
         break;
+    }
+}
+
+TtcHardwareMode TtcHardware::stringToTtcHardwareMode(String mode_)
+{
+    if (mode_ == "manual")
+    {
+        return manual;
+    }
+    else if (mode_ == "autoReady")
+    {
+        return autoReady;
+    }
+    else if (mode_ == "autoCooling")
+    {
+        return autoCooling;
+    }
+    else if (mode_ == "autoFinished")
+    {
+        return autoFinished;
+    }
+    else
+    {
+        return manual;
     }
 }
 
@@ -203,7 +232,7 @@ String TtcHardware::getHardwareStateAsJsonString()
     json["relay2"] = relay2->isOn();
     json["temperature"] = serialized(String(getTemperature(), 2));
     json["targetTemperature"] = serialized(String(getTargetTemperature(), 2));
-    json["state"] = getModeAsString();
+    json["mode"] = getModeAsString();
 
     serializeJsonPretty(json, serializedJson);
 
