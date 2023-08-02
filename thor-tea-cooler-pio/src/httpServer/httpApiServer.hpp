@@ -63,6 +63,9 @@ HttpApiServer::~HttpApiServer()
 
 void HttpApiServer::initializeApi()
 {
+    server->onNotFound([](AsyncWebServerRequest *request)
+                       { request->send(404); });
+
     authRouter = new AuthRouter(server, auth);
     hwRouter = new HardwareRouter(server, hw, auth);
 
