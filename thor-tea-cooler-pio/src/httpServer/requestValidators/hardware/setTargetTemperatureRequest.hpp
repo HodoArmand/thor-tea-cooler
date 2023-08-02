@@ -23,7 +23,7 @@ bool SetTargetTemperatureRequest::validate()
     else
     {
         String targetTemperature = getBodyParamValueByName("targetTemperature");
-        if (!validator.isStringNumeric(targetTemperature))
+        if (!validator.isFloat(targetTemperature) && !validator.isStringInteger(targetTemperature))
         {
             addValidationError("targetTemperature must be a number.");
         }

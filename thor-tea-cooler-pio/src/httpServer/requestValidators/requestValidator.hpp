@@ -90,7 +90,7 @@ inline bool RequestValidator::isStringNumeric(String string_)
 {
     for (char inputChar : string_)
     {
-        if (!isDigit(inputChar) || inputChar != '.' || inputChar != ',')
+        if (!isDigit(inputChar) && inputChar != '.' && inputChar != ',')
         {
             return false;
         }
@@ -161,7 +161,7 @@ inline bool RequestValidator::max(String string_, float maxValue)
 
 inline bool RequestValidator::between(String string_, int minValue, int maxValue)
 {
-    if (isStringInteger(string_))
+    if (!isStringInteger(string_))
     {
         return false;
     }
@@ -174,7 +174,7 @@ inline bool RequestValidator::between(String string_, int minValue, int maxValue
 
 inline bool RequestValidator::between(String string_, float minValue, float maxValue)
 {
-    if (isStringNumeric(string_))
+    if (!isStringNumeric(string_))
     {
         return false;
     }
