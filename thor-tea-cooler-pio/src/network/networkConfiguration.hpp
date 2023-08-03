@@ -10,7 +10,7 @@ struct TtcNetworkConfiguration
     String password;
 };
 
-class NetworkConfiguration :Configuration
+class NetworkConfiguration : public Configuration
 {
 private:
     TtcNetworkConfiguration config;
@@ -21,6 +21,9 @@ private:
     const String flashConfigKeys[3] = {"debugMode", "ssid", "password"};
 
 public:
+    using Configuration::initFileSystem;
+    using Configuration::printToSerializedPrettyJson;
+
     NetworkConfiguration();
     ~NetworkConfiguration();
 
@@ -41,12 +44,10 @@ public:
 
     void printToSerial();
     DynamicJsonDocument printToJson();
-    String printToSerializedPrettyJson();
     bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
 
-    bool initFileSystem();
     bool loadFromDisk();
     bool saveToDisk();
 };

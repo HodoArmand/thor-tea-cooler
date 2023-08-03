@@ -1,7 +1,7 @@
 #pragma once
 
 #include "configuration/configuration.hpp"
-struct TtcHardwareConfiguration : public Configuration
+struct TtcHardwareConfiguration
 {
     bool debugMode;
 
@@ -14,7 +14,7 @@ struct TtcHardwareConfiguration : public Configuration
     float temperatureTargetDefault;
 };
 
-class HardwareConfiguration
+class HardwareConfiguration : public Configuration
 {
 private:
     //  props
@@ -26,6 +26,9 @@ private:
     const String flashConfigKeys[6] = {"debugMode", "relayIoPin1", "relayIoPin2", "oneWireIoPin", "temperatureSensorOffsetCelsius", "temperatureTargetDefault"};
 
 public:
+    using Configuration::initFileSystem;
+    using Configuration::printToSerializedPrettyJson;
+    
     HardwareConfiguration();
     ~HardwareConfiguration();
 
@@ -57,12 +60,10 @@ public:
 
     void printToSerial();
     DynamicJsonDocument printToJson();
-    String printToSerializedPrettyJson();
     bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
 
-    bool initFileSystem();
     bool loadFromDisk();
     bool saveToDisk();
 };

@@ -15,7 +15,7 @@ struct TtcServerConfiguration
     bool selfHostMode = false;
 };
 
-class ServerConfiguration : Configuration
+class ServerConfiguration : public Configuration
 {
 private:
     TtcServerConfiguration config;
@@ -26,6 +26,9 @@ private:
     const String flashConfigKeys[8] = {"debugMode", "port", "apiKeyLength", "apiThrottleIntervalMs", "maxStoredUsers", "maxApiKeysPerUser", "maxApiKeysTotal", "selfHostMode"};
 
 public:
+    using Configuration::initFileSystem;
+    using Configuration::printToSerializedPrettyJson;
+
     ServerConfiguration(/* args */);
     ~ServerConfiguration();
 
@@ -61,12 +64,10 @@ public:
 
     void printToSerial();
     DynamicJsonDocument printToJson();
-    String printToSerializedPrettyJson();
     bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
 
-    bool initFileSystem();
     bool loadFromDisk();
     bool saveToDisk();
 };
