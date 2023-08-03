@@ -91,8 +91,8 @@ void initializeHardware()
     else
     {
         Serial.println("0, OK - Relays initialized.");
-        hw->relay1->on();
-        hw->relay2->on();
+        hw->relay1->off();
+        hw->relay2->off();
 
         Serial.println("0, OK - Temperature sensor initialized.");
 
