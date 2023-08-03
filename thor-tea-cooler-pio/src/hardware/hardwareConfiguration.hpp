@@ -61,6 +61,7 @@ public:
     void printToSerial();
     DynamicJsonDocument printToJson();
     String printToSerializedPrettyJson();
+    bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
 
@@ -83,8 +84,8 @@ void HardwareConfiguration::printToSerial()
     Serial.print((String) "\n REL1 GPIO Pin: " + getRelayIoPin1() +
                  "\n REL2 GPIO Pin: " + getRelayIoPin2() +
                  "\n OneWire GPIO Pin: " + getOneWireIoPin() +
-                 "\n Hőmérséklet offset: " + getTemperatureSensorOffsetCelsius() +
-                 "\n Alapértelmezett célhőmérséklet: " + getTemperatureTargetDefault());
+                 "\n Temperature offset: " + getTemperatureSensorOffsetCelsius() +
+                 "\n Default target temperature: " + getTemperatureTargetDefault());
 }
 
 DynamicJsonDocument HardwareConfiguration::printToJson()
@@ -95,8 +96,8 @@ DynamicJsonDocument HardwareConfiguration::printToJson()
     json["relayIoPin1"] = getRelayIoPin1();
     json["relayIoPin2"] = getRelayIoPin2();
     json["oneWireIoPin"] = getOneWireIoPin();
-    json["temperatureSensorOffsetCelsius"] = getTemperatureSensorOffsetCelsius();
-    json["temperatureTargetDefault"] = getTemperatureTargetDefault();
+    json["temperatureSensorOffsetCelsius"] = serialized(String(getTemperatureSensorOffsetCelsius(), 2));
+    json["temperatureTargetDefault"] = serialized(String(getTemperatureTargetDefault(), 2));
 
     return json;
 }
@@ -111,6 +112,47 @@ String HardwareConfiguration::printToSerializedPrettyJson()
     json.clear();
 
     return serializedJson;
+}
+
+inline bool HardwareConfiguration::setFromJson(DynamicJsonDocument json)
+{
+    for (String configKey : flashConfigKeys)
+    {
+        if (!json.containsKey(configKey))
+        {
+            if (Serial)
+            {
+
+                Serial.println("1, ERR CONF JSON KEYS, hardware configuration load error: Missing required configuration value: " + configKey);
+            }
+            return false;
+        }
+    }
+    if (Serial)
+    {
+        Serial.println("0, OK CONF SET JSON, configuration json parsing successful.");
+        Serial.println("Loaded configuration values in json:");
+        serializeJsonPretty(json, Serial);
+    }
+
+    setDebugMode(json["debugMode"].as<bool>());
+    setRelayIoPin1(json["relayIoPin1"].as<int>());
+    setRelayIoPin2(json["relayIoPin2"].as<int>());
+    setOneWireIoPin(json["oneWireIoPin"].as<int>());
+    setTemperatureSensorOffsetCelsius(json["temperatureSensorOffsetCelsius"].as<float>());
+    setTemperatureTargetDefault(json["temperatureTargetDefault"].as<float>());
+
+    if (Serial)
+    {
+        Serial.println("0, OK CONF SET, hardware configuration successfully set.");
+
+        Serial.println("Active configuration content:");
+        printToSerial();
+    }
+
+    json.clear();
+
+    return true;
 }
 
 //  TODO: these are common functionality in multiple config classes, extract these functions and inherit them.

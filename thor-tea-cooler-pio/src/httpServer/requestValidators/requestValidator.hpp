@@ -7,6 +7,7 @@
 #include <ESPAsyncWebServer.h>
 
 #include "httpServer/ApiKey.hpp"
+#include "hardware/relay.hpp"
 
 using namespace std;
 
@@ -19,12 +20,15 @@ struct RequestHeader
 class RequestValidator
 {
 private:
-    /* data */
+    String removeMinusSign(String string_);
+
 public:
     RequestValidator();
     ~RequestValidator();
 
     bool inArray(const String &value, const std::vector<String> &array);
+
+    //  TODO: properly test ALL vlidator types
 
     bool stringtoBool(String string_);
     bool isBool(String string_);
@@ -58,6 +62,16 @@ RequestValidator::~RequestValidator()
 {
 }
 
+inline String RequestValidator::removeMinusSign(String string_)
+{
+    if (string_[0] == '-')
+    {
+        string_ = string_.substring(1, string_.length() - 1);
+    }
+
+    return string_;
+}
+
 inline bool RequestValidator::inArray(const String &value, const std::vector<String> &array)
 {
     return std::find(array.begin(), array.end(), value) != array.end();
@@ -88,6 +102,7 @@ inline bool RequestValidator::isBool(String string_)
 
 inline bool RequestValidator::isStringNumeric(String string_)
 {
+    string_ = removeMinusSign(string_);
     for (char inputChar : string_)
     {
         if (!isDigit(inputChar) && inputChar != '.' && inputChar != ',')
@@ -100,6 +115,7 @@ inline bool RequestValidator::isStringNumeric(String string_)
 
 inline bool RequestValidator::isStringInteger(String string_)
 {
+    string_ = removeMinusSign(string_);
     for (char inputChar : string_)
     {
         if (!isDigit(inputChar))
@@ -107,11 +123,13 @@ inline bool RequestValidator::isStringInteger(String string_)
             return false;
         }
     }
+
     return true;
 }
 
 inline bool RequestValidator::isFloat(String string_)
 {
+    string_ = removeMinusSign(string_);
     bool hasOneDecimator = false;
     int numOfDecimators = 0;
     for (char letter : string_)

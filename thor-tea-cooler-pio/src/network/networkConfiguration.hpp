@@ -45,6 +45,7 @@ public:
     void printToSerial();
     DynamicJsonDocument printToJson();
     String printToSerializedPrettyJson();
+    bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
 
@@ -90,6 +91,43 @@ String NetworkConfiguration::printToSerializedPrettyJson()
     json.clear();
 
     return serializedJson;
+}
+
+bool NetworkConfiguration::setFromJson(DynamicJsonDocument json)
+{
+    for (String configKey : flashConfigKeys)
+    {
+        if (!json.containsKey(configKey))
+        {
+            if (Serial)
+            {
+                Serial.println("1, ERR CONF JSON KEYS, network configuration load error: Missing required configuration value: " + configKey);
+            }
+            return false;
+        }
+    }
+    if (Serial)
+    {
+        Serial.println("0, OK CONF JSON, configuration json parsing successful.");
+        Serial.println("Loaded configuration values in json:");
+        serializeJsonPretty(json, Serial);
+    }
+
+    setDebugMode(json["debugMode"].as<bool>());
+    setSsid(json["ssid"].as<String>());
+    setPassword(json["password"].as<String>());
+
+    if (Serial)
+    {
+        Serial.println("0, OK CONF LOAD, network configuration successfully loaded.");
+
+        Serial.println("Active configuration content:");
+        printToSerial();
+    }
+
+    json.clear();
+
+    return true;
 }
 
 bool NetworkConfiguration::initFileSystem()

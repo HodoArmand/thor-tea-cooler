@@ -156,7 +156,7 @@ void loadServerConfig()
 
 void initializeApiServer()
 {
-    server = new HttpApiServer(serverConfig, hw);
+    server = new HttpApiServer(serverConfig, hw, hwConfig, networkConfig, serverConfig);
     server->initializeApi();
 }
 

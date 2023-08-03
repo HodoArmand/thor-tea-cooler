@@ -1,3 +1,5 @@
+#pragma once
+
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
@@ -5,6 +7,7 @@
 
 #include "routing/AuthRouter.hpp"
 #include "routing/HardwareRouter.hpp"
+#include "routing/ConfigurationRouter.hpp"
 
 enum ServerState
 {
@@ -22,12 +25,16 @@ private:
     ServerState state = SRV_UNINITIALIZED;
 
 public:
-    HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_);
+    HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_);
     ~HttpApiServer();
 
     TtcHardware *hw;
     Authorization *auth;
     AsyncWebServer *server;
+
+    HardwareConfiguration *hwConfig;
+    NetworkConfiguration *networkConfig;
+    ServerConfiguration *serverConfig;
 
     ServerState getState() const { return state; }
     void setState(const ServerState &state_) { state = state_; }
@@ -36,15 +43,20 @@ public:
 
     AuthRouter *authRouter;
     HardwareRouter *hwRouter;
+    ConfigurationRouter *configRouter;
 
     void initializeApi();
     void start();
 };
 
-HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_)
+HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
 {
     auth = new Authorization(config_);
     hw = hw_;
+
+    hwConfig = hwConfig_;
+    networkConfig = networkConfig_;
+    serverConfig = serverConfig_;
 
     if (auth->initFileSystem() && auth->loadUsersFromDisk() && auth->loadApiKeysFromDisk())
     {
@@ -68,6 +80,7 @@ void HttpApiServer::initializeApi()
 
     authRouter = new AuthRouter(server, auth);
     hwRouter = new HardwareRouter(server, hw, auth);
+    configRouter = new ConfigurationRouter(server, auth, hwConfig, networkConfig, serverConfig);
 
     setState(SRV_INITIALIZED);
 }

@@ -65,6 +65,7 @@ public:
     void printToSerial();
     DynamicJsonDocument printToJson();
     String printToSerializedPrettyJson();
+    bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
 
@@ -119,6 +120,48 @@ String ServerConfiguration::printToSerializedPrettyJson()
     json.clear();
 
     return serializedJson;
+}
+
+bool ServerConfiguration::setFromJson(DynamicJsonDocument json)
+{
+    for (String configKey : flashConfigKeys)
+    {
+        if (!json.containsKey(configKey))
+        {
+            if (Serial)
+            {
+                Serial.println("1, ERR CONF JSON KEYS, server configuration load error: Missing required configuration value: " + configKey);
+            }
+            return false;
+        }
+    }
+    if (Serial)
+    {
+        Serial.println("0, OK CONF JSON, configuration json parsing successful.");
+        Serial.println("Loaded configuration values in json:");
+        serializeJsonPretty(json, Serial);
+    }
+
+    setDebugMode(json["debugMode"].as<bool>());
+    setPort(json["port"].as<int>());
+    setApiKeyLength(json["apiKeyLength"].as<size_t>());
+    setApiThrottleIntervalMs(json["apiThrottleIntervalMs"].as<int>());
+    setMaxStoredUsers(json["maxStoredUsers"].as<int>());
+    setMaxApiKeysPerUser(json["maxApiKeysPerUser"].as<int>());
+    setMaxApiKeysTotal(json["maxApiKeysTotal"].as<int>());
+    setSelfHostMode(json["selfHostMode"].as<bool>());
+
+    if (Serial)
+    {
+        Serial.println("0, OK CONF LOAD, server configuration successfully loaded.");
+
+        Serial.println("Active configuration content:");
+        printToSerial();
+    }
+
+    json.clear();
+
+    return true;
 }
 
 //  TODO: these are common functionality in multiple config classes, extract these functions and inherit them.

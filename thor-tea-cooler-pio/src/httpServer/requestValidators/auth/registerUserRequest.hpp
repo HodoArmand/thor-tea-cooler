@@ -1,3 +1,5 @@
+#pragma once
+
 #include "httpServer/requestValidators/Request.hpp"
 
 class RegisterUserRequest : public Request

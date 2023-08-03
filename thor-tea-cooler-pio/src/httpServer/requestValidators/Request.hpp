@@ -3,6 +3,12 @@
 #include "requestValidator.hpp"
 #include "requestBodyParameter.hpp"
 
+struct StringKeyChecklistItem
+{
+    String key;
+    bool check;
+};
+
 class Request
 {
 
@@ -11,6 +17,7 @@ public:
     ~Request();
 
     RequestValidator validator;
+    //  TODO: Refractor idea: simplify how the Request->validate() functions work. validator should add the error messages more automatically.
 
     vector<RequestHeader> headers;
     vector<RequestBodyParameter> bodyParams;
@@ -18,11 +25,14 @@ public:
     int contentLength;
     String url;
 
+    vector<String> requiredFields;
+
     void processRequestHeader(AsyncWebServerRequest *request);
     void processRequestBody(AsyncWebServerRequest *request);
     bool validate();
     vector<String> validationErrors;
     void addValidationError(String error);
+    DynamicJsonDocument bodyToJson();
 
     bool hasBodyParam(String paramName);
     String getBodyParamValueByName(String paramName);
@@ -30,6 +40,14 @@ public:
     bool hasHeader(String headerName);
     String getHeaderValueByName(String headerName);
     String getAuthApiKey();
+
+    vector<String> getRequiredFields() const { return requiredFields; }
+    void setRequiredFields(const vector<String> &requiredFields_)
+    {
+        requiredFields.resize(requiredFields_.size());
+        requiredFields = requiredFields_;
+    }
+    bool checkRequiredFields();
 };
 
 Request::Request(AsyncWebServerRequest *request)
@@ -104,6 +122,18 @@ void Request::addValidationError(String error)
     validationErrors.push_back(error);
 }
 
+inline DynamicJsonDocument Request::bodyToJson()
+{
+    DynamicJsonDocument json(1.5 * 255 * bodyParams.size());
+
+    for (RequestBodyParameter param : bodyParams)
+    {
+        json[param.key] = param.value;
+    }
+
+    return json;
+}
+
 String Request::getBodyParamValueByName(String paramName)
 {
     for (RequestBodyParameter param : bodyParams)
@@ -152,4 +182,42 @@ String Request::getAuthApiKey()
     {
         return "";
     }
+}
+
+inline bool Request::checkRequiredFields()
+{
+    StringKeyChecklistItem fieldChecklist[requiredFields.size()];
+
+    int i = 0;
+    for (String requiredField : requiredFields)
+    {
+        fieldChecklist[i].key = requiredField;
+        fieldChecklist[i].check = false;
+        for (RequestBodyParameter bodyParam : bodyParams)
+        {
+            if (requiredField == bodyParam.key)
+            {
+                fieldChecklist[i].check = true;
+                break;
+            }
+        }
+        i++;
+    }
+
+    bool allFieldsPresent = true;
+
+    for (StringKeyChecklistItem field : fieldChecklist)
+    {
+        if (!field.check)
+        {
+            addValidationError("Missing '" + field.key + "' request parameter.");
+
+            if (allFieldsPresent)
+            {
+                allFieldsPresent = false;
+            }
+        }
+    }
+
+    return allFieldsPresent;
 }
