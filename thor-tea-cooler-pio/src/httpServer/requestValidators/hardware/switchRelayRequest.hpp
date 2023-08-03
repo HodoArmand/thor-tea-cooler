@@ -14,17 +14,18 @@ bool SwitchRelayRequest::validate()
     {
         addValidationError("Bad API header.");
     }
-    if (!hasBodyParam("relay"))
+
+    setRequiredFields({"relay"});
+
+    if (!checkRequiredFields())
     {
-        addValidationError("Missing 'relay' request parameter.");
+        return false;
     }
-    else
+
+    String relay = getBodyParamValueByName("relay");
+    if (!(relay == "1" || relay == "2"))
     {
-        String relay = getBodyParamValueByName("relay");
-        if (!(relay == "1" || relay == "2"))
-        {
-            addValidationError("Bad relay number.");
-        }
+        addValidationError("Bad relay number.");
     }
 
     if (validationErrors.size() != 0)

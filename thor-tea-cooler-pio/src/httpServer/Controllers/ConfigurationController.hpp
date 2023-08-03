@@ -77,7 +77,6 @@ inline void ConfigurationController::setHardwareConfig(AsyncWebServerRequest *re
     }
     else if (!auth->isApiKeyValid(request.getAuthApiKey()))
     {
-        //  TODO: refractor the auth check in controllers to elseif like this for better readability
         simpleUnauthorizedResponse(request_);
     }
     else
@@ -102,19 +101,14 @@ inline void ConfigurationController::getNetworkConfig(AsyncWebServerRequest *req
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-            String networkConfigValues = networkConfig->printToSerializedPrettyJson();
-            simpleVeryBigResponse(request_, 200, "ok", networkConfigValues);
-        }
+        String networkConfigValues = networkConfig->printToSerializedPrettyJson();
+        simpleVeryBigResponse(request_, 200, "ok", networkConfigValues);
     }
 }
 
@@ -152,19 +146,14 @@ inline void ConfigurationController::getServerConfig(AsyncWebServerRequest *requ
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-            String serverConfigValues = serverConfig->printToSerializedPrettyJson();
-            simpleVeryBigResponse(request_, 200, "ok", serverConfigValues);
-        }
+        String serverConfigValues = serverConfig->printToSerializedPrettyJson();
+        simpleVeryBigResponse(request_, 200, "ok", serverConfigValues);
     }
 }
 

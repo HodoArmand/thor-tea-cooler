@@ -16,24 +16,25 @@ bool SetTargetTemperatureRequest::validate()
     {
         addValidationError("Bad API header.");
     }
-    if (!hasBodyParam("targetTemperature"))
+
+    setRequiredFields({"targetTemperature"});
+
+    if (!checkRequiredFields())
     {
-        addValidationError("Missing 'targetTemperature' request parameter.");
+        return false;
+    }
+
+    String targetTemperature = getBodyParamValueByName("targetTemperature");
+    if (!validator.isFloat(targetTemperature) && !validator.isStringInteger(targetTemperature))
+    {
+        addValidationError("targetTemperature must be a number.");
     }
     else
     {
-        String targetTemperature = getBodyParamValueByName("targetTemperature");
-        if (!validator.isFloat(targetTemperature) && !validator.isStringInteger(targetTemperature))
+        //  TODO: add minmax config for target temperature or just keep it const validation?
+        if (!validator.between(targetTemperature, 20.00f, 75.00f))
         {
-            addValidationError("targetTemperature must be a number.");
-        }
-        else
-        {
-            //  TODO: add minmax config for target temperature or just keep it const validation?
-            if (!validator.between(targetTemperature, 20.00f, 75.00f))
-            {
-                addValidationError("targetTemperature must be between 20 and 75 celsius.");
-            }
+            addValidationError("targetTemperature must be between 20 and 75 celsius.");
         }
     }
 

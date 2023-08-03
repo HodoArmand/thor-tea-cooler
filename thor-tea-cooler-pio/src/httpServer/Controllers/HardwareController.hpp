@@ -52,18 +52,13 @@ inline void HardwareController::getHardwareState(AsyncWebServerRequest *request_
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-            simpleBigResponse(request_, 200, "ok", hw->getHardwareStateAsJsonString());
-        }
+        simpleBigResponse(request_, 200, "ok", hw->getHardwareStateAsJsonString());
     }
 }
 
@@ -75,19 +70,14 @@ void HardwareController::switchRelay(AsyncWebServerRequest *request_)
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-            hw->switchRelay(request.getBodyParamValueByName("relay").toInt());
-            simpleOkResponse(request_);
-        }
+        hw->switchRelay(request.getBodyParamValueByName("relay").toInt());
+        simpleOkResponse(request_);
     }
 }
 
@@ -99,23 +89,18 @@ inline void HardwareController::setRelays(AsyncWebServerRequest *request_)
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
+        bool relay1Value, relay2Value = false;
+        relay1Value = request.validator.stringtoBool(request.getBodyParamValueByName("relay1"));
+        relay2Value = request.validator.stringtoBool(request.getBodyParamValueByName("relay2"));
+        hw->setRelays(relay1Value, relay2Value);
 
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-            bool relay1Value, relay2Value = false;
-            relay1Value = request.validator.stringtoBool(request.getBodyParamValueByName("relay1"));
-            relay2Value = request.validator.stringtoBool(request.getBodyParamValueByName("relay2"));
-            hw->setRelays(relay1Value, relay2Value);
-
-            simpleCreatedResponse(request_);
-        }
+        simpleCreatedResponse(request_);
     }
 }
 
@@ -127,19 +112,14 @@ inline void HardwareController::setModeManual(AsyncWebServerRequest *request_)
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-            hw->setModeManual();
-            simpleCreatedResponse(request_);
-        }
+        hw->setModeManual();
+        simpleCreatedResponse(request_);
     }
 }
 
@@ -151,26 +131,21 @@ inline void HardwareController::setModeAuto(AsyncWebServerRequest *request_)
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
+        TtcHardwareMode mode = hw->getMode();
+        if (mode != autoCooling)
         {
-            simpleUnauthorizedResponse(request_);
+            hw->setModeAuto();
+            simpleCreatedResponse(request_);
         }
         else
         {
-            TtcHardwareMode mode = hw->getMode();
-            if (mode != autoCooling)
-            {
-                hw->setModeAuto();
-                simpleCreatedResponse(request_);
-            }
-            else
-            {
-                simpleBigResponse(request_, 500, "Cooling in progress.", "Can't switch to auto ready mode, when cooling is in progress. Finish the autoCooling or switch to manual mode first.");
-            }
+            simpleBigResponse(request_, 500, "Cooling in progress.", "Can't switch to auto ready mode, when cooling is in progress. Finish the autoCooling or switch to manual mode first.");
         }
     }
 }
@@ -183,19 +158,14 @@ inline void HardwareController::setTargetTemperature(AsyncWebServerRequest *requ
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-            hw->setTargetTemperature(request.getBodyParamValueByName("targetTemperature").toFloat());
-            simpleCreatedResponse(request_);
-        }
+        hw->setTargetTemperature(request.getBodyParamValueByName("targetTemperature").toFloat());
+        simpleCreatedResponse(request_);
     }
 }
 
@@ -207,26 +177,21 @@ inline void HardwareController::startAutoCooling(AsyncWebServerRequest *request_
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
+        TtcHardwareMode mode = hw->getMode();
+        if (mode == autoReady)
         {
-            simpleUnauthorizedResponse(request_);
+            hw->startCooling();
+            simpleCreatedResponse(request_);
         }
         else
         {
-            TtcHardwareMode mode = hw->getMode();
-            if (mode == autoReady)
-            {
-                hw->startCooling();
-                simpleCreatedResponse(request_);
-            }
-            else
-            {
-                simpleBigResponse(request_, 500, "Not in autoReady mode.", "Can't start the automatic cooling progress. Switch to autoReady mode first.");
-            }
+            simpleBigResponse(request_, 500, "Not in autoReady mode.", "Can't start the automatic cooling progress. Switch to autoReady mode first.");
         }
     }
 }
@@ -239,26 +204,21 @@ inline void HardwareController::stopAutoCooling(AsyncWebServerRequest *request_)
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
-
-        if (!authorized)
+        TtcHardwareMode mode = hw->getMode();
+        if (mode == autoCooling)
         {
-            simpleUnauthorizedResponse(request_);
+            hw->stopCooling();
+            simpleCreatedResponse(request_);
         }
         else
         {
-            TtcHardwareMode mode = hw->getMode();
-            if (mode == autoCooling)
-            {
-                hw->stopCooling();
-                simpleCreatedResponse(request_);
-            }
-            else
-            {
-                simpleBigResponse(request_, 500, "Not in autoCooling mode.", "Can't stop the automatic cooling progress. Switch to autoCooling mode first.");
-            }
+            simpleBigResponse(request_, 500, "Not in autoCooling mode.", "Can't stop the automatic cooling progress. Switch to autoCooling mode first.");
         }
     }
 }
@@ -271,20 +231,15 @@ inline void HardwareController::restartMcu(AsyncWebServerRequest *request_)
     {
         validationErrorsResponse(request_, request.validationErrors);
     }
+    else if (!auth->isApiKeyValid(request.getAuthApiKey()))
+    {
+        simpleUnauthorizedResponse(request_);
+    }
     else
     {
-        bool authorized = auth->isApiKeyValid(request.getAuthApiKey());
 
-        if (!authorized)
-        {
-            simpleUnauthorizedResponse(request_);
-        }
-        else
-        {
-
-            simpleResponse(request_, 201, "ok", "Microcontroller is restarting in 10 seconds.");
-            delay(10000);
-            ESP.restart();
-        }
+        simpleResponse(request_, 201, "ok", "Microcontroller is restarting in 10 seconds.");
+        delay(10000);
+        ESP.restart();
     }
 }

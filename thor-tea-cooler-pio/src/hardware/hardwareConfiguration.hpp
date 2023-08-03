@@ -1,10 +1,7 @@
 #pragma once
 
-#include "FS.h"
-#include "SPIFFS.h"
-#include <ArduinoJson.h>
-
-struct TtcHardwareConfiguration
+#include "configuration/configuration.hpp"
+struct TtcHardwareConfiguration : public Configuration
 {
     bool debugMode;
 
@@ -102,18 +99,6 @@ DynamicJsonDocument HardwareConfiguration::printToJson()
     return json;
 }
 
-String HardwareConfiguration::printToSerializedPrettyJson()
-{
-    DynamicJsonDocument json = printToJson();
-    String serializedJson;
-
-    serializeJsonPretty(json, serializedJson);
-
-    json.clear();
-
-    return serializedJson;
-}
-
 inline bool HardwareConfiguration::setFromJson(DynamicJsonDocument json)
 {
     for (String configKey : flashConfigKeys)
@@ -153,28 +138,6 @@ inline bool HardwareConfiguration::setFromJson(DynamicJsonDocument json)
     json.clear();
 
     return true;
-}
-
-//  TODO: these are common functionality in multiple config classes, extract these functions and inherit them.
-
-bool HardwareConfiguration::initFileSystem()
-{
-    if (!SPIFFS.begin())
-    {
-        if (Serial)
-        {
-            Serial.println("1, ERR FS INIT, Filesystem initialization error.");
-        }
-        return false;
-    }
-    else
-    {
-        if (Serial)
-        {
-            Serial.println("0, OK FS INIT, Filesystem initialization successful.");
-        }
-        return true;
-    }
 }
 
 bool HardwareConfiguration::loadFromDisk()

@@ -17,29 +17,24 @@ bool RegisterUserRequest::validate()
     {
         addValidationError("Bad API header.");
     }
-    if (!hasBodyParam("name"))
+
+    setRequiredFields({"name", "password"});
+
+    if (!checkRequiredFields())
     {
-        addValidationError("Missing 'name' request parameter.");
+        return false;
     }
-    else
+
+    String name = getBodyParamValueByName("name");
+    if (!(validator.minLength(name, 3) && validator.maxLength(name, 32)))
     {
-        String name = getBodyParamValueByName("name");
-        if (!(validator.minLength(name, 3) && validator.maxLength(name, 32)))
-        {
-            addValidationError("Name must be between 3 and 32 characters long.");
-        }
+        addValidationError("Name must be between 3 and 32 characters long.");
     }
-    if (!hasBodyParam("password"))
+
+    String password = getBodyParamValueByName("password");
+    if (!(validator.minLength(password, 8) && validator.maxLength(password, 32)))
     {
-        addValidationError("Missing 'password' request parameter.");
-    }
-    else
-    {
-        String password = getBodyParamValueByName("password");
-        if (!(validator.minLength(password, 8) && validator.maxLength(password, 32)))
-        {
-            addValidationError("Pasword must be between 8 and 32 characters long.");
-        }
+        addValidationError("Pasword must be between 8 and 32 characters long.");
     }
 
     if (validationErrors.size() != 0)

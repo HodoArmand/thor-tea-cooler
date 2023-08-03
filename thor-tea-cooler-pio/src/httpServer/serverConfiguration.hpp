@@ -1,9 +1,6 @@
 #pragma once
 
-#include "FS.h"
-#include "SPIFFS.h"
-#include <ArduinoJson.h>
-
+#include "configuration/configuration.hpp"
 struct TtcServerConfiguration
 {
     bool debugMode;
@@ -18,7 +15,7 @@ struct TtcServerConfiguration
     bool selfHostMode = false;
 };
 
-class ServerConfiguration
+class ServerConfiguration : Configuration
 {
 private:
     TtcServerConfiguration config;
@@ -110,18 +107,6 @@ DynamicJsonDocument ServerConfiguration::printToJson()
     return json;
 }
 
-String ServerConfiguration::printToSerializedPrettyJson()
-{
-    DynamicJsonDocument json = printToJson();
-    String serializedJson;
-
-    serializeJsonPretty(json, serializedJson);
-
-    json.clear();
-
-    return serializedJson;
-}
-
 bool ServerConfiguration::setFromJson(DynamicJsonDocument json)
 {
     for (String configKey : flashConfigKeys)
@@ -162,28 +147,6 @@ bool ServerConfiguration::setFromJson(DynamicJsonDocument json)
     json.clear();
 
     return true;
-}
-
-//  TODO: these are common functionality in multiple config classes, extract these functions and inherit them.
-
-bool ServerConfiguration::initFileSystem()
-{
-    if (!SPIFFS.begin())
-    {
-        if (Serial)
-        {
-            Serial.println("1, ERR FS INIT, Filesystem initialization error.");
-        }
-        return false;
-    }
-    else
-    {
-        if (Serial)
-        {
-            Serial.println("0, OK FS INIT, Filesystem initialization successful.");
-        }
-        return true;
-    }
 }
 
 bool ServerConfiguration::loadFromDisk()

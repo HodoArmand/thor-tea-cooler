@@ -16,26 +16,23 @@ bool SetRelaysRequest::validate()
     {
         addValidationError("Bad API header.");
     }
-    if (!hasBodyParam("relay1"))
+
+    setRequiredFields({"relay1", "relay2"});
+
+    if (!checkRequiredFields())
     {
-        addValidationError("Missing 'relay1' request parameter.");
+        return false;
     }
-    if (!hasBodyParam("relay2"))
+
+    String relay = getBodyParamValueByName("relay1");
+    if (!validator.isBool(relay))
     {
-        addValidationError("Missing 'relay2' request parameter.");
+        addValidationError("Bad relay1 value. Must be true/false or 0/1.");
     }
-    if (hasBodyParam("relay1") && hasBodyParam("relay2"))
+    relay = getBodyParamValueByName("relay2");
+    if (!validator.isBool(relay))
     {
-        String relay = getBodyParamValueByName("relay1");
-        if (!validator.isBool(relay))
-        {
-            addValidationError("Bad relay1 value. Must be true/false or 0/1.");
-        }
-        relay = getBodyParamValueByName("relay2");
-        if (!validator.isBool(relay))
-        {
-            addValidationError("Bad relay2 value. Must be true/false or 0/1.");
-        }
+        addValidationError("Bad relay2 value. Must be true/false or 0/1.");
     }
 
     if (validationErrors.size() != 0)

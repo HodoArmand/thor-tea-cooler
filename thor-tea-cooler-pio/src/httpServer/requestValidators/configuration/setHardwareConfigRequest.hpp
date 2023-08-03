@@ -18,8 +18,6 @@ bool SetHardwareConfigRequest::validate()
         addValidationError("Bad API header.");
     }
 
-    //  TODO: refractor: use this new syntax at older, other required fields checks
-
     setRequiredFields({"debugMode", "relayIoPin1", "relayIoPin2", "oneWireIoPin", "temperatureSensorOffsetCelsius", "temperatureTargetDefault"});
 
     if (!checkRequiredFields())

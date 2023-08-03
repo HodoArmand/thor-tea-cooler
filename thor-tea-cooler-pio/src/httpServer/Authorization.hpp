@@ -115,8 +115,7 @@ bool Authorization::initFileSystem()
     }
 }
 
-/*  TODO: add encryption to user pw data*/
-
+//  ESP flash encrypted
 bool Authorization::loadUsersFromDisk()
 {
     File usersFile = SPIFFS.open("/users.json", "r");

@@ -1,10 +1,7 @@
 #pragma once
 
-#include "FS.h"
-#include "SPIFFS.h"
-#include <ArduinoJson.h>
+#include "configuration/configuration.hpp"
 
-//  TODO: add disk encryption
 struct TtcNetworkConfiguration
 {
     bool debugMode;
@@ -13,7 +10,7 @@ struct TtcNetworkConfiguration
     String password;
 };
 
-class NetworkConfiguration
+class NetworkConfiguration :Configuration
 {
 private:
     TtcNetworkConfiguration config;
@@ -81,18 +78,6 @@ DynamicJsonDocument NetworkConfiguration::printToJson()
     return json;
 }
 
-String NetworkConfiguration::printToSerializedPrettyJson()
-{
-    DynamicJsonDocument json = printToJson();
-    String serializedJson;
-
-    serializeJsonPretty(json, serializedJson);
-
-    json.clear();
-
-    return serializedJson;
-}
-
 bool NetworkConfiguration::setFromJson(DynamicJsonDocument json)
 {
     for (String configKey : flashConfigKeys)
@@ -128,26 +113,6 @@ bool NetworkConfiguration::setFromJson(DynamicJsonDocument json)
     json.clear();
 
     return true;
-}
-
-bool NetworkConfiguration::initFileSystem()
-{
-    if (!SPIFFS.begin())
-    {
-        if (Serial)
-        {
-            Serial.println("1, ERR FS INIT, Filesystem initialization error.");
-        }
-        return false;
-    }
-    else
-    {
-        if (Serial)
-        {
-            Serial.println("0, OK FS INIT, Filesystem initialization successful.");
-        }
-        return true;
-    }
 }
 
 bool NetworkConfiguration::loadFromDisk()

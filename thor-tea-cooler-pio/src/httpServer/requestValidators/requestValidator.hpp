@@ -28,7 +28,7 @@ public:
 
     bool inArray(const String &value, const std::vector<String> &array);
 
-    //  TODO: properly test ALL vlidator types
+    //  TODO: properly test ALL validator types
 
     bool stringtoBool(String string_);
     bool isBool(String string_);
