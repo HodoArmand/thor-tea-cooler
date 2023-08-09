@@ -10,14 +10,15 @@ public:
     Controller(/* args */);
     ~Controller();
 
-    void simpleResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
-    void simpleBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
-    void simpleVeryBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
-    void simpleOkResponse(AsyncWebServerRequest *request);
-    void simpleCreatedResponse(AsyncWebServerRequest *request);
-    void simpleUnauthorizedResponse(AsyncWebServerRequest *request);
+    static void simpleResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
+    static void simpleBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
+    static void simpleVeryBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
+    static void simpleOkResponse(AsyncWebServerRequest *request);
+    static void simpleCreatedResponse(AsyncWebServerRequest *request);
+    static void simpleUnauthorizedResponse(AsyncWebServerRequest *request);
+    static void simpleNotFoundResponse(AsyncWebServerRequest *request);
 
-    void validationErrorsResponse(AsyncWebServerRequest *request, vector<String> validationErrors);
+    static void validationErrorsResponse(AsyncWebServerRequest *request, vector<String> validationErrors);
 };
 
 Controller::Controller(/* args */)
@@ -98,6 +99,11 @@ void Controller::simpleUnauthorizedResponse(AsyncWebServerRequest *request)
     json.clear();
 
     request->send(403, "application/json", responseBody);
+}
+
+inline void Controller::simpleNotFoundResponse(AsyncWebServerRequest *request)
+{
+    simpleResponse(request, 404, "Not found.", "The requested resource/route was not found.");
 }
 
 void Controller::validationErrorsResponse(AsyncWebServerRequest *request, vector<String> validationErrors)

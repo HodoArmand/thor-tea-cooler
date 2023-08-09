@@ -46,7 +46,10 @@ public:
     ConfigurationRouter *configRouter;
 
     void initializeApi();
-    void start();
+    void startApi();
+
+    void initializeWebSockets();
+    void startWebSockets();
 };
 
 HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
@@ -76,7 +79,7 @@ HttpApiServer::~HttpApiServer()
 void HttpApiServer::initializeApi()
 {
     server->onNotFound([](AsyncWebServerRequest *request)
-                       { request->send(404); });
+                       { Controller::simpleNotFoundResponse(request); });
 
     authRouter = new AuthRouter(server, auth);
     hwRouter = new HardwareRouter(server, hw, auth);
@@ -85,9 +88,19 @@ void HttpApiServer::initializeApi()
     setState(SRV_INITIALIZED);
 }
 
-void HttpApiServer::start()
+void HttpApiServer::startApi()
 {
     server->begin();
     setState(SRV_RUNNING);
     Serial.println("Server initialized, running...");
+}
+
+inline void HttpApiServer::initializeWebSockets()
+{
+    Serial.println("WS:TODO");
+}
+
+inline void HttpApiServer::startWebSockets()
+{
+    Serial.println("WS:TODO");
 }

@@ -16,8 +16,7 @@ void loadNetworkConfig();
 void connectToWifi();
 void loadServerConfig();
 void initializeApiServer();
-// void server.start();
 // void loadOscClientConfig();
 // void initializeOscClient();
 
-void runAuthTest();
+//  TODO: add SSE or websockets

@@ -19,7 +19,7 @@ void setup()
     connectToWifi();
     loadServerConfig();
     initializeApiServer();
-    server->start();
+    server->startApi();
     //  loadOscClientConfig();
     //  initializeOscClient();
 }
@@ -28,7 +28,7 @@ void loop()
 {
     delay(5000); // TODO: replace this with timer
     hw->readHardwareState();
-    if (hw->getMode() == autoCooling && hw->getTargetTemperature() <= hw->getTemperature())
+    if (hw->getMode() == autoCooling && hw->getTargetTemperature() >= hw->getTemperature())
     {
         hw->stopCooling();
     }
