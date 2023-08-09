@@ -81,6 +81,9 @@ void HttpApiServer::initializeApi()
     server->onNotFound([](AsyncWebServerRequest *request)
                        { Controller::simpleNotFoundResponse(request); });
 
+    server->on("/isTtc", HTTP_GET, [&](AsyncWebServerRequest *request)
+               { Controller::simpleResponse(request, 200, "yes", "Yes, TTC Device."); });
+
     authRouter = new AuthRouter(server, auth);
     hwRouter = new HardwareRouter(server, hw, auth);
     configRouter = new ConfigurationRouter(server, auth, hwConfig, networkConfig, serverConfig);
