@@ -77,7 +77,7 @@ void HardwareController::switchRelay(AsyncWebServerRequest *request_)
     else
     {
         hw->switchRelay(request.getBodyParamValueByName("relay").toInt());
-        simpleOkResponse(request_);
+        simpleCreatedResponse(request_);
     }
 }
 

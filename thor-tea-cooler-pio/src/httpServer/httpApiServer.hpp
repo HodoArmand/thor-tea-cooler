@@ -79,7 +79,15 @@ HttpApiServer::~HttpApiServer()
 void HttpApiServer::initializeApi()
 {
     server->onNotFound([](AsyncWebServerRequest *request)
-                       { Controller::simpleNotFoundResponse(request); });
+                       {
+                           if (request->method() == HTTP_OPTIONS)
+                           {
+                               request->send(200);
+                           }
+                           else
+                           {
+                               Controller::simpleNotFoundResponse(request);
+                           } });
 
     server->on("/isTtc", HTTP_GET, [&](AsyncWebServerRequest *request)
                { Controller::simpleResponse(request, 200, "yes", "Yes, TTC Device."); });
@@ -87,6 +95,14 @@ void HttpApiServer::initializeApi()
     authRouter = new AuthRouter(server, auth);
     hwRouter = new HardwareRouter(server, hw, auth);
     configRouter = new ConfigurationRouter(server, auth, hwConfig, networkConfig, serverConfig);
+
+    if (serverConfig->getDebugMode())
+    {
+        DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+        DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type");
+        DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Authorization");
+    }
 
     setState(SRV_INITIALIZED);
 }
