@@ -60,6 +60,7 @@ public:
 
     void printToSerial();
     DynamicJsonDocument printToJson();
+    String printToSerializedPrettyJson();
     bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
@@ -98,6 +99,18 @@ DynamicJsonDocument HardwareConfiguration::printToJson()
     json["temperatureTargetDefault"] = serialized(String(getTemperatureTargetDefault(), 2));
 
     return json;
+}
+
+String HardwareConfiguration::printToSerializedPrettyJson()
+{
+    DynamicJsonDocument json = printToJson();
+    String serializedJson;
+
+    serializeJsonPretty(json, serializedJson);
+
+    json.clear();
+
+    return serializedJson;
 }
 
 inline bool HardwareConfiguration::setFromJson(DynamicJsonDocument json)

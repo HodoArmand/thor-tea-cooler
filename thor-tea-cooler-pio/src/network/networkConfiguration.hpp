@@ -44,6 +44,7 @@ public:
 
     void printToSerial();
     DynamicJsonDocument printToJson();
+    String printToSerializedPrettyJson();
     bool setFromJson(DynamicJsonDocument json);
 
     //  disk operations
@@ -77,6 +78,18 @@ DynamicJsonDocument NetworkConfiguration::printToJson()
     json["password"] = getPassword();
 
     return json;
+}
+
+String NetworkConfiguration::printToSerializedPrettyJson()
+{
+    DynamicJsonDocument json = printToJson();
+    String serializedJson;
+
+    serializeJsonPretty(json, serializedJson);
+
+    json.clear();
+
+    return serializedJson;
 }
 
 bool NetworkConfiguration::setFromJson(DynamicJsonDocument json)
