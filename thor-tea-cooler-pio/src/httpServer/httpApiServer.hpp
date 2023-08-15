@@ -91,11 +91,11 @@ void HttpApiServer::initializeApi()
     server->on("/isTtc", HTTP_GET, [&](AsyncWebServerRequest *request)
                { Controller::simpleResponse(request, 200, "yes", "Yes, TTC Device."); });
 
-    authRouter = new AuthRouter(server, auth);
-    hwRouter = new HardwareRouter(server, hw, auth);
-    configRouter = new ConfigurationRouter(server, auth, hwConfig, networkConfig, serverConfig);
-    
     sseRouter = new ServerSideEventRouter(hw, server, "/events");
+
+    authRouter = new AuthRouter(server, auth);
+    hwRouter = new HardwareRouter(server, hw, auth, sseRouter);
+    configRouter = new ConfigurationRouter(server, auth, hwConfig, networkConfig, serverConfig);
 
     if (serverConfig->getDebugMode())
     {
