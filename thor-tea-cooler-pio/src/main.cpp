@@ -7,7 +7,6 @@ WifiNetworkAdapter *wifiAdapter;
 ServerConfiguration *serverConfig;
 HttpApiServer *server;
 
-
 //------------------------------------------------   Main   ---------------------------------
 
 void setup()
@@ -32,6 +31,8 @@ void loop()
     {
         hw->stopCooling();
     }
+
+    server->sseRouter->sendTeaState();
 
     if (hwConfig->getDebugMode())
     {

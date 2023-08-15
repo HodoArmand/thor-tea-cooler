@@ -19,4 +19,4 @@ void initializeApiServer();
 // void loadOscClientConfig();
 // void initializeOscClient();
 
-//  TODO: add SSE or websockets
+// TODO: add OSC interface

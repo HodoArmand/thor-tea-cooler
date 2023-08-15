@@ -335,7 +335,7 @@ inline bool RequestValidator::isApiHeaderValid(vector<RequestHeader> headers)
         {
             acceptsAppJson = true;
         }
-        else if (header.key == "Authorization" && header.key.substring(0, 6) == "Bearer|")
+        else if (header.key == "Authorization" && (header.key.substring(0, 6) == "Bearer|" || header.key.substring(0, 6) == "Bearer "))
         {
             hasApiKey = true;
         }

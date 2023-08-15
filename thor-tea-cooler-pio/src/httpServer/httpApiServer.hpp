@@ -8,6 +8,7 @@
 #include "routing/AuthRouter.hpp"
 #include "routing/HardwareRouter.hpp"
 #include "routing/ConfigurationRouter.hpp"
+#include "routing/ServerSideEventRouter.hpp"
 
 enum ServerState
 {
@@ -44,12 +45,10 @@ public:
     AuthRouter *authRouter;
     HardwareRouter *hwRouter;
     ConfigurationRouter *configRouter;
+    ServerSideEventRouter *sseRouter;
 
     void initializeApi();
     void startApi();
-
-    void initializeWebSockets();
-    void startWebSockets();
 };
 
 HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
@@ -95,6 +94,8 @@ void HttpApiServer::initializeApi()
     authRouter = new AuthRouter(server, auth);
     hwRouter = new HardwareRouter(server, hw, auth);
     configRouter = new ConfigurationRouter(server, auth, hwConfig, networkConfig, serverConfig);
+    
+    sseRouter = new ServerSideEventRouter(hw, server, "/events");
 
     if (serverConfig->getDebugMode())
     {
@@ -112,14 +113,4 @@ void HttpApiServer::startApi()
     server->begin();
     setState(SRV_RUNNING);
     Serial.println("Server initialized, running...");
-}
-
-inline void HttpApiServer::initializeWebSockets()
-{
-    Serial.println("WS:TODO");
-}
-
-inline void HttpApiServer::startWebSockets()
-{
-    Serial.println("WS:TODO");
 }
