@@ -27,12 +27,12 @@ void loop()
 {
     delay(5000); // TODO: replace this with timer
     hw->readHardwareState();
-    if (hw->getMode() == autoCooling && hw->getTargetTemperature() >= hw->getTemperature())
+    if (hw->getMode() == autoCooling && hw->getTemperature() <= hw->getTargetTemperature())
     {
         hw->stopCooling();
     }
 
-    server->sseRouter->sendTeaState();
+    server->broadcastTeaState();
 
     if (hwConfig->getDebugMode())
     {

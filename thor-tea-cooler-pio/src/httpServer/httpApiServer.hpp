@@ -40,6 +40,8 @@ public:
     ServerState getState() const { return state; }
     void setState(const ServerState &state_) { state = state_; }
 
+    void broadcastTeaState();
+
     //  Route
 
     AuthRouter *authRouter;
@@ -73,6 +75,11 @@ HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_, Har
 
 HttpApiServer::~HttpApiServer()
 {
+}
+
+inline void HttpApiServer::broadcastTeaState()
+{
+    sseRouter->sendTeaState();
 }
 
 void HttpApiServer::initializeApi()
