@@ -1,6 +1,7 @@
 #pragma once
 
 #include "configuration/configuration.hpp"
+#include "httpServer/requestValidators/requestValidator.hpp"
 
 struct TtcNetworkConfiguration
 {
@@ -112,7 +113,7 @@ bool NetworkConfiguration::setFromJson(DynamicJsonDocument json)
         serializeJsonPretty(json, Serial);
     }
 
-    setDebugMode(json["debugMode"].as<bool>());
+    setDebugMode(RequestValidator::stringToBool(json["debugMode"].as<String>()));
     setSsid(json["ssid"].as<String>());
     setPassword(json["password"].as<String>());
 
@@ -192,7 +193,7 @@ bool NetworkConfiguration::loadFromDisk()
             serializeJsonPretty(json, Serial);
         }
 
-        setDebugMode(json["debugMode"].as<bool>());
+        setDebugMode(RequestValidator::stringToBool(json["debugMode"].as<String>()));
         setSsid(json["ssid"].as<String>());
         setPassword(json["password"].as<String>());
 

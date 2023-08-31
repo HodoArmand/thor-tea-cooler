@@ -96,8 +96,8 @@ inline void HardwareController::setRelays(AsyncWebServerRequest *request_)
     else
     {
         bool relay1Value, relay2Value = false;
-        relay1Value = request.validator.stringtoBool(request.getBodyParamValueByName("relay1"));
-        relay2Value = request.validator.stringtoBool(request.getBodyParamValueByName("relay2"));
+        relay1Value = request.validator.stringToBool(request.getBodyParamValueByName("relay1"));
+        relay2Value = request.validator.stringToBool(request.getBodyParamValueByName("relay2"));
         hw->setRelays(relay1Value, relay2Value);
 
         simpleCreatedResponse(request_);

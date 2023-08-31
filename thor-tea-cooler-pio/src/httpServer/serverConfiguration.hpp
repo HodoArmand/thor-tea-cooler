@@ -1,6 +1,8 @@
 #pragma once
 
 #include "configuration/configuration.hpp"
+#include "httpServer/requestValidators/requestValidator.hpp"
+
 struct TtcServerConfiguration
 {
     bool debugMode;
@@ -141,14 +143,14 @@ bool ServerConfiguration::setFromJson(DynamicJsonDocument json)
         serializeJsonPretty(json, Serial);
     }
 
-    setDebugMode(json["debugMode"].as<bool>());
+    setDebugMode(RequestValidator::stringToBool(json["debugMode"].as<String>()));
     setPort(json["port"].as<int>());
     setApiKeyLength(json["apiKeyLength"].as<size_t>());
     setApiThrottleIntervalMs(json["apiThrottleIntervalMs"].as<int>());
     setMaxStoredUsers(json["maxStoredUsers"].as<int>());
     setMaxApiKeysPerUser(json["maxApiKeysPerUser"].as<int>());
     setMaxApiKeysTotal(json["maxApiKeysTotal"].as<int>());
-    setSelfHostMode(json["selfHostMode"].as<bool>());
+    setSelfHostMode(RequestValidator::stringToBool(json["selfHostMode"].as<String>()));
 
     if (Serial)
     {
@@ -226,14 +228,14 @@ bool ServerConfiguration::loadFromDisk()
             serializeJsonPretty(json, Serial);
         }
 
-        setDebugMode(json["debugMode"].as<bool>());
+        setDebugMode(RequestValidator::stringToBool(json["debugMode"].as<String>()));
         setPort(json["port"].as<int>());
         setApiKeyLength(json["apiKeyLength"].as<size_t>());
         setApiThrottleIntervalMs(json["apiThrottleIntervalMs"].as<int>());
         setMaxStoredUsers(json["maxStoredUsers"].as<int>());
         setMaxApiKeysPerUser(json["maxApiKeysPerUser"].as<int>());
         setMaxApiKeysTotal(json["maxApiKeysTotal"].as<int>());
-        setSelfHostMode(json["selfHostMode"].as<bool>());
+        setSelfHostMode(RequestValidator::stringToBool(json["selfHostMode"].as<String>()));
 
         if (Serial)
         {

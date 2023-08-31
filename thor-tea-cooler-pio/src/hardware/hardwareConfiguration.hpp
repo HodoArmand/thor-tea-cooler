@@ -1,6 +1,7 @@
 #pragma once
 
 #include "configuration/configuration.hpp"
+#include "httpServer/requestValidators/requestValidator.hpp"
 struct TtcHardwareConfiguration
 {
     bool debugMode;
@@ -28,7 +29,7 @@ private:
 public:
     using Configuration::initFileSystem;
     using Configuration::printToSerializedPrettyJson;
-    
+
     HardwareConfiguration();
     ~HardwareConfiguration();
 
@@ -134,7 +135,7 @@ inline bool HardwareConfiguration::setFromJson(DynamicJsonDocument json)
         serializeJsonPretty(json, Serial);
     }
 
-    setDebugMode(json["debugMode"].as<bool>());
+    setDebugMode(RequestValidator::stringToBool(json["debugMode"].as<String>()));
     setRelayIoPin1(json["relayIoPin1"].as<int>());
     setRelayIoPin2(json["relayIoPin2"].as<int>());
     setOneWireIoPin(json["oneWireIoPin"].as<int>());
@@ -217,7 +218,7 @@ bool HardwareConfiguration::loadFromDisk()
             serializeJsonPretty(json, Serial);
         }
 
-        setDebugMode(json["debugMode"].as<bool>());
+        setDebugMode(RequestValidator::stringToBool(json["debugMode"].as<String>()));
         setRelayIoPin1(json["relayIoPin1"].as<int>());
         setRelayIoPin2(json["relayIoPin2"].as<int>());
         setOneWireIoPin(json["oneWireIoPin"].as<int>());

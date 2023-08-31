@@ -16,9 +16,11 @@ bool EditUserRequest::validate()
         addValidationError("Bad API header.");
     }
 
-    if (!hasBodyParam("name") && !hasBodyParam("password"))
+    setRequiredFields({"name", "password"});
+
+    if (!checkRequiredFields())
     {
-        addValidationError("Missing 'name' and 'password' request parameter, nothing to edit.");
+        return false;
     }
     else
     {
@@ -40,12 +42,5 @@ bool EditUserRequest::validate()
         }
     }
 
-    if (validationErrors.size() != 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return validationErrors.size() == 0;
 }

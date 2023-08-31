@@ -30,7 +30,7 @@ public:
 
     //  TODO: properly test ALL validator types
 
-    bool stringtoBool(String string_);
+    static bool stringToBool(String string_);
     bool isBool(String string_);
     bool isStringNumeric(String string_);
     bool isStringInteger(String string_);
@@ -77,7 +77,7 @@ inline bool RequestValidator::inArray(const String &value, const std::vector<Str
     return std::find(array.begin(), array.end(), value) != array.end();
 }
 
-inline bool RequestValidator::stringtoBool(String string_)
+inline bool RequestValidator::stringToBool(String string_)
 {
     if (string_ == "true" || string_ == "1")
     {
