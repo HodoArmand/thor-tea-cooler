@@ -139,12 +139,8 @@ inline bool RequestValidator::isFloat(String string_)
             numOfDecimators++;
         }
     }
-    if (numOfDecimators == 1)
-    {
-        hasOneDecimator = true;
-    }
 
-    return isStringNumeric(string_) && hasOneDecimator;
+    return isStringNumeric(string_) && (numOfDecimators <= 1);
 }
 
 inline bool RequestValidator::minLength(String string_, int minLength)
