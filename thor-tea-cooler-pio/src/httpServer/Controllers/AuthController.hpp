@@ -188,8 +188,11 @@ void AuthController::deleteUser(AsyncWebServerRequest *request_)
         }
         else
         {
-
-            if (!auth->deleteUser(user.getId()))
+            if (request.getBodyParamValueByName("password") != user.getPassword())
+            {
+                simpleResponse(request_, 401, "Bad credentials.", "Delete operation refused: Wrong password.");
+            }
+            else if (!auth->deleteUser(user.getId()))
             {
                 simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
             }

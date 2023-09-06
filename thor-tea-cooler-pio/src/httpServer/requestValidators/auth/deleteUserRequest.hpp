@@ -2,7 +2,7 @@
 
 class DeleteUserRequest : public Request
 {
-    
+
     using Request::Request;
 
 public:
@@ -17,12 +17,24 @@ bool DeleteUserRequest::validate()
         addValidationError("Bad API header.");
     }
 
-    if (validationErrors.size() != 0)
+    setRequiredFields({"password", "password_confirmed"});
+
+    if (!checkRequiredFields())
     {
         return false;
     }
-    else
+
+    String password = getBodyParamValueByName("password");
+    if (!(validator.minLength(password, 8) && validator.maxLength(password, 32)))
     {
-        return true;
+        addValidationError("Password must be between 8 and 32 characters long.");
     }
+
+    String passwordConfirmed = getBodyParamValueByName("password_confirmed");
+    if (password != passwordConfirmed)
+    {
+        addValidationError("Password confirmation must match the password field.");
+    }
+
+    return validationErrors.size() == 0;
 }

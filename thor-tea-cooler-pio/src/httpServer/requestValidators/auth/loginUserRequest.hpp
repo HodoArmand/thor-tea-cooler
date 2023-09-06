@@ -31,15 +31,8 @@ bool LoginUserRequest::validate()
     String password = getBodyParamValueByName("password");
     if (!(validator.minLength(password, 8) && validator.maxLength(password, 32)))
     {
-        addValidationError("Pasword must be between 8 and 32 characters long.");
+        addValidationError("Password must be between 8 and 32 characters long.");
     }
 
-    if (validationErrors.size() != 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return validationErrors.size() == 0;
 }

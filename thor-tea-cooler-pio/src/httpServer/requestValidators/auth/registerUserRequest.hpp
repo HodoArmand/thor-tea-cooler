@@ -18,13 +18,14 @@ bool RegisterUserRequest::validate()
         addValidationError("Bad API header.");
     }
 
-    setRequiredFields({"name", "password"});
+    setRequiredFields({"name", "password", "password_confirmed"});
 
     if (!checkRequiredFields())
     {
         return false;
     }
 
+    // TODO: add betweenLength validator prop
     String name = getBodyParamValueByName("name");
     if (!(validator.minLength(name, 3) && validator.maxLength(name, 32)))
     {
@@ -34,15 +35,14 @@ bool RegisterUserRequest::validate()
     String password = getBodyParamValueByName("password");
     if (!(validator.minLength(password, 8) && validator.maxLength(password, 32)))
     {
-        addValidationError("Pasword must be between 8 and 32 characters long.");
+        addValidationError("Password must be between 8 and 32 characters long.");
     }
 
-    if (validationErrors.size() != 0)
+    String passwordConfirmed = getBodyParamValueByName("password_confirmed");
+    if (password != passwordConfirmed)
     {
-        return false;
+        addValidationError("Password confirmation must match the password field.");
     }
-    else
-    {
-        return true;
-    }
+
+    return validationErrors.size() == 0;
 }

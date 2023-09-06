@@ -2,7 +2,7 @@
 
 class LogoutUserRequest : public Request
 {
-    
+
     using Request::Request;
 
 public:
@@ -14,10 +14,7 @@ bool LogoutUserRequest::validate()
     if (!validator.isApiHeaderValid(headers))
     {
         addValidationError("Bad API header.");
-        return false;
     }
-    else
-    {
-        return true;
-    }
+
+    return validationErrors.size() == 0;
 }
