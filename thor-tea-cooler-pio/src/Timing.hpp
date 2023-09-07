@@ -82,7 +82,7 @@ bool Timing::isTimeFor(String timerName)
     {
         if (t.name == timerName)
         {
-            return (now >= t.lastDoneAtMillis + t.intervalInMillis);
+            return (now - t.lastDoneAtMillis >= t.intervalInMillis);
         }
     }
 
