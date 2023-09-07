@@ -6,11 +6,19 @@ NetworkConfiguration *networkConfig;
 WifiNetworkAdapter *wifiAdapter;
 ServerConfiguration *serverConfig;
 HttpApiServer *server;
+Timing *timing;
+
+int bootFeedbackLedCounter = 0;
+int bootFeedbackLedCounterTarget = 0;
+bool bootFeedbackDone = false;
 
 //------------------------------------------------   Main   ---------------------------------
 
 void setup()
 {
+    initializeTimers();
+    initializeBootFeedback();
+
     initializeSerial(115200, 1500);
     loadHardwareConfig();
     initializeHardware();
@@ -21,31 +29,82 @@ void setup()
     server->startApi();
     //  loadOscClientConfig();
     //  initializeOscClient();
+
+    setBootFinishedFeedback();
 }
 
 void loop()
 {
-    delay(5000); // TODO: replace this with timer
-    hw->readHardwareState();
-    if (hw->getMode() == autoCooling && hw->getTemperature() <= hw->getTargetTemperature())
+    timing->refreshNow();
+
+    if (!bootFeedbackDone && bootFeedbackLedCounter <= bootFeedbackLedCounterTarget && timing->isTimeFor("ledBlinkInterval"))
     {
-        hw->stopCooling();
+        bootFeedbackLedCounter++;
+        timing->setLastDoneNowFor("ledBlinkInterval");
+        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+        if (bootFeedbackLedCounter == bootFeedbackLedCounterTarget)
+        {
+            bootFeedbackDone = true;
+        }
     }
-
-    server->broadcastTeaState();
-
-    if (hwConfig->getDebugMode())
+    if (timing->isTimeFor("measureHardwareStateWithSse"))
     {
-        Serial.println(hw->getHardwareStateAsJsonString());
+        timing->setLastDoneNowFor("measureHardwareStateWithSse");
+        hw->readHardwareState();
+        if (hw->getMode() == autoCooling && hw->getTemperature() <= hw->getTargetTemperature())
+        {
+            hw->stopCooling();
+        }
+
+        server->broadcastTeaState();
+
+        if (hwConfig->getDebugMode())
+        {
+            Serial.println(hw->getHardwareStateAsJsonString());
+        }
     }
-
-    if (WiFi.status() != WL_CONNECTED)
+    if (timing->isTimeFor("checkWifiConnection"))
     {
-        wifiAdapter->tryUntilReConnected();
+        timing->setLastDoneNowFor("checkWifiConnection");
+        if (WiFi.status() != WL_CONNECTED)
+        {
+            wifiAdapter->tryUntilReConnected();
+        }
     }
 }
 
 //------------------------------------------------   BOOT functions   ---------------------------------
+
+void initializeTimers()
+{
+    timing = new Timing;
+    timing->addTimer("measureHardwareStateWithSse", 5000);
+    timing->addTimer("checkWifiConnection", 5000);
+    timing->addTimer("ledBlinkInterval", 1000);
+}
+
+void initializeBootFeedback()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW);
+}
+
+void setBootFinishedFeedback()
+{
+    digitalWrite(LED_BUILTIN, HIGH);
+    timing->refreshNow();
+    timing->setLastDoneNowFor("ledBlinkInterval");
+
+    //  boot ok = 1 blink stay low, else 3 blink, stay high
+    if (server->getState() == SRV_RUNNING)
+    {
+        bootFeedbackLedCounterTarget = 2;
+    }
+    else
+    {
+        bootFeedbackLedCounterTarget = 7;
+    }
+}
 
 void initializeSerial(int baudRate, int delayMs)
 {
