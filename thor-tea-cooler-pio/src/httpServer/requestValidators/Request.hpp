@@ -35,7 +35,6 @@ private:
         "maxLength",
         "between",
         "inArray"};
-    //  TODO: optimization?: make this work as a standard array or just leave it as vector for easy extendibility
 
 public:
     Request(AsyncWebServerRequest *request);

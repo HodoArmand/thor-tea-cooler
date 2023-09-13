@@ -25,4 +25,4 @@ void initializeApiServer();
 
 void setBootFinishedFeedback();
 
-// TODO: add OSC interface
+// TODO: 1.1: add OSC interface
