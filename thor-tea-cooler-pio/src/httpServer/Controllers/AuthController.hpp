@@ -38,6 +38,7 @@ AuthController::~AuthController()
 
 void AuthController::login(AsyncWebServerRequest *request_)
 {
+
     LoginUserRequest request(request_);
 
     if (!request.validate())
@@ -164,7 +165,7 @@ void AuthController::editUser(AsyncWebServerRequest *request_)
                 simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
             }
             else
-            {                
+            {
                 simpleCreatedResponse(request_);
             }
         }

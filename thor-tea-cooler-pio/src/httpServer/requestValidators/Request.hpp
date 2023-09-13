@@ -2,6 +2,7 @@
 
 #include "requestValidator.hpp"
 #include "requestBodyParameter.hpp"
+#include "requestRule.hpp"
 
 struct StringKeyChecklistItem
 {
@@ -12,12 +13,35 @@ struct StringKeyChecklistItem
 class Request
 {
 
+private:
+    bool requiredFieldsSet = false;
+    void validateHeaders(String headerRulesString);
+    void validateRequestField(String ruleName, String rules);
+    vector<String> validationRules = {
+        "apiHeader",
+        "loginApiHeader",
+        "required",
+        "same",
+        "bool",
+        "numeric",
+        "integer",
+        "float",
+        "address",
+        "secureAddress",
+        "ipv4Address",
+        "ipv4AddressShort",
+        "gpioPin",
+        "minLength",
+        "maxLength",
+        "between",
+        "inArray"};
+    //  TODO: optimization?: make this work as a standard array or just leave it as vector for easy extendibility
+
 public:
     Request(AsyncWebServerRequest *request);
     ~Request();
 
     RequestValidator validator;
-    //  TODO: Refractor idea: simplify how the Request->validate() functions work. validator should add the error messages more automatically.
 
     vector<RequestHeader> headers;
     vector<RequestBodyParameter> bodyParams;
@@ -25,11 +49,14 @@ public:
     int contentLength;
     String url;
 
+    vector<RequestRule> rules;
     vector<String> requiredFields;
 
     void processRequestHeader(AsyncWebServerRequest *request);
     void processRequestBody(AsyncWebServerRequest *request);
+
     bool validate();
+
     vector<String> validationErrors;
     void addValidationError(String error);
     DynamicJsonDocument bodyToJson();
@@ -64,9 +91,260 @@ Request::~Request()
 {
 }
 
-inline bool Request::validate()
+inline void Request::validateHeaders(String headerRulesString)
 {
-    return true;
+    StringSplitter headerRules(headerRulesString, '|', 255);
+
+    int rulesCount = headerRules.getItemCount();
+
+    if (rulesCount < 1)
+    {
+        addValidationError("Formatting error at header validation.");
+    }
+    else
+    {
+        for (int i = 0; i < rulesCount; i++)
+        {
+            String headerRule = headerRules.getItemAtIndex(i);
+
+            if (headerRule == "apiHeader" && !validator.isApiHeaderValid(headers))
+            {
+                addValidationError("Bad API header.");
+            }
+            else if (headerRule == "loginApiHeader" && !validator.isLoginApiHeaderValid(headers))
+            {
+                addValidationError("Bad login API header.");
+            }
+        }
+    }
+}
+
+void Request::validateRequestField(String ruleField, String rules)
+{
+    StringSplitter rulesSplit(rules, '|', 255);
+
+    int rulesCount = rulesSplit.getItemCount();
+
+    if (rulesCount < 1)
+    {
+        addValidationError("Syntax error: " + ruleField + " field rule key exists but no validation rules given.");
+    }
+    else
+    {
+        String valueToValidate = getBodyParamValueByName(ruleField);
+
+        for (int i = 0; i < rulesCount; i++)
+        {
+            String ruleString = rulesSplit.getItemAtIndex(i);
+
+            if (ruleString == "required")
+            {
+                continue;
+            }
+
+            StringSplitter ruleParts(ruleString, ':', 255);
+            bool rulehasParameters = ruleParts.getItemCount() > 1 ? true : false;
+
+            if (!rulehasParameters)
+            {
+                String ruleName = ruleString;
+
+                if (!validator.inArray(ruleName, validationRules))
+                {
+                    addValidationError("Error: The " + ruleName + " validation rule doesn't exist, @" + ruleField + ".");
+                }
+
+                if (ruleName == "bool" && !validator.isBool(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be a boolean value.");
+                }
+                else if (ruleName == "numeric" && !validator.isStringNumeric(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be a numeric value.");
+                }
+                else if (ruleName == "integer" && !validator.isStringInteger(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be an integer number value.");
+                }
+                else if (ruleName == "float" && !validator.isFloat(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be a float number value.");
+                }
+                else if (ruleName == "address" && !validator.isAddress(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be an IP/address  value.");
+                }
+                else if (ruleName == "secureAddress" && !validator.isSecureAddress(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be a secure IP/address  value.");
+                }
+                else if (ruleName == "ipv4Address" && !validator.isIpv4Address(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be an IPv4 address  value.");
+                }
+                else if (ruleName == "ipv4AddressShort" && !validator.isIpv4Address(valueToValidate))
+                {
+                    addValidationError(ruleField + " must be an IPv4 address  value.");
+                }
+                else if (ruleName == "gpioPin" && Relay::validateIoPin(valueToValidate.toInt()) != PIN_OK)
+                {
+                    addValidationError(ruleField + ": " + valueToValidate + " is not a valid output pin.");
+                }
+            }
+            else
+            {
+                String ruleName = ruleParts.getItemAtIndex(0);
+
+                StringSplitter ruleParameters(ruleParts.getItemAtIndex(1), '&', 255);
+
+                //  single arg validator rules
+                if (ruleParameters.getItemCount() == 1)
+                {
+                    String ruleParameter = ruleParts.getItemAtIndex(1);
+
+                    int ruleValueInt = ruleParameter.toInt();
+                    float ruleValueFloat = ruleParameter.toFloat();
+
+                    if (ruleName == "same" && valueToValidate != getBodyParamValueByName(ruleParameter))
+                    {
+                        addValidationError(ruleField + " must match " + ruleParameter + ".");
+                    }
+                    else if (ruleName == "minLength" && !validator.minLength(valueToValidate, ruleValueInt))
+                    {
+                        addValidationError(ruleField + " length must be at least " + ruleParameter + ".");
+                    }
+                    else if (ruleName == "maxLength" && !validator.maxLength(valueToValidate, ruleValueInt))
+                    {
+                        addValidationError(ruleField + " legth must be maximum " + ruleParameter + ".");
+                    }
+                    else if (ruleName == "min")
+                    {
+                        if (validator.isStringInteger(valueToValidate))
+                        {
+                            if (!validator.min(valueToValidate, ruleValueInt))
+                            {
+                                addValidationError(ruleField + " must be at least " + ruleParameter + ".");
+                            }
+                        }
+                        else if (validator.isFloat(valueToValidate))
+                        {
+                            if (!validator.min(valueToValidate, ruleValueFloat))
+                            {
+                                addValidationError(ruleField + " must be at least " + ruleParameter + ".");
+                            }
+                        }
+                        else
+                        {
+                            addValidationError("Invalid validation rule formatting at: " + ruleField + " -  " + ruleName + ":" + ruleParameter);
+                        }
+                    }
+                    else if (ruleName == "max")
+                    {
+                        if (validator.isStringInteger(valueToValidate))
+                        {
+                            if (!validator.max(valueToValidate, ruleValueInt))
+                            {
+                                addValidationError(ruleField + " must be maximum " + ruleParameter + ".");
+                            }
+                        }
+                        else if (validator.isFloat(valueToValidate))
+                        {
+                            if (!validator.max(valueToValidate, ruleValueFloat))
+                            {
+                                addValidationError(ruleField + " must be maximum " + ruleParameter + ".");
+                            }
+                        }
+                        else
+                        {
+                            addValidationError("Invalid validation rule formatting at: " + ruleField + " -  " + ruleName + ":" + ruleParameter);
+                        }
+                    }
+                }
+                else if (ruleParameters.getItemCount() == 2) //  two arg validator rules
+                {
+                    String ruleParameter1 = ruleParameters.getItemAtIndex(0);
+                    String ruleParameter2 = ruleParameters.getItemAtIndex(1);
+
+                    int ruleParameterInt1 = ruleParameter1.toInt();
+                    int ruleParameterInt2 = ruleParameter2.toInt();
+                    float ruleParameterFloat1 = ruleParameter1.toFloat();
+                    float ruleParameterFloat2 = ruleParameter2.toFloat();
+
+                    if (ruleName == "between")
+                    {
+                        if (validator.isFloat(ruleParameter1) && validator.isFloat(ruleParameter2))
+                        {
+                            if (!validator.min(valueToValidate, ruleParameterFloat1) || !validator.max(valueToValidate, ruleParameterFloat2))
+                            {
+                                addValidationError(ruleField + ": " + valueToValidate + " must be between " + (String)ruleParameterFloat1 + " and " + (String)ruleParameterFloat2);
+                            }
+                        }
+                        else if (validator.isStringInteger(ruleParameter1) && validator.isStringInteger(ruleParameter2))
+                        {
+                            if (!validator.min(valueToValidate, ruleParameterInt1) || !validator.max(valueToValidate, ruleParameterInt2))
+                            {
+                                addValidationError(ruleField + ": " + valueToValidate + " must be between " + (String)ruleParameterInt1 + " and " + (String)ruleParameterInt2);
+                            }
+                        }
+                    }
+                }
+                //  multi arg validator rule (inArray)
+                else
+                {
+                    if (ruleName == "inArray")
+                    {
+                        std::vector<String> ruleParamValues;
+                        for (size_t i = 0; i < ruleParameters.getItemCount(); i++)
+                        {
+                            ruleParamValues.reserve(ruleParamValues.size() + 1);
+                            ruleParamValues.push_back(ruleParameters.getItemAtIndex(i));
+                        }
+
+                        if (!validator.inArray(valueToValidate, ruleParamValues))
+                        {
+                            addValidationError(ruleField + " must be one of: " + ruleParts.getItemAtIndex(1));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool Request::validate()
+{
+    if (!requiredFieldsSet)
+    {
+        for (RequestRule rule : rules)
+        {
+            if (rule.rules.indexOf("required") != -1)
+            {
+                requiredFields.reserve(requiredFields.size() + 1);
+                requiredFields.push_back(rule.name);
+            }
+        }
+
+        requiredFieldsSet = true;
+    }
+
+    if (!checkRequiredFields())
+    {
+        return false;
+    }
+
+    for (RequestRule rule : rules)
+    {
+        if (rule.name == "header")
+        {
+            validateHeaders(rule.rules);
+        }
+        else
+        {
+            validateRequestField(rule.name, rule.rules);
+        }
+    }
+
+    return validationErrors.size() == 0;
 }
 
 inline void Request::processRequestHeader(AsyncWebServerRequest *request)

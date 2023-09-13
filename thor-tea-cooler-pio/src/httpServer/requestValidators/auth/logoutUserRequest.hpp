@@ -1,20 +1,13 @@
+#pragma once
+
 #include "httpServer/requestValidators/Request.hpp"
 
 class LogoutUserRequest : public Request
 {
-
-    using Request::Request;
-
 public:
-    bool validate();
-};
-
-bool LogoutUserRequest::validate()
-{
-    if (!validator.isApiHeaderValid(headers))
+    LogoutUserRequest(AsyncWebServerRequest *request) : Request(request)
     {
-        addValidationError("Bad API header.");
+        rules = {
+            {"header", "apiHeader"}};
     }
-
-    return validationErrors.size() == 0;
-}
+};

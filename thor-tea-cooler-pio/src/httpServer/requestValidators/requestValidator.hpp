@@ -28,8 +28,6 @@ public:
 
     bool inArray(const String &value, const std::vector<String> &array);
 
-    //  TODO: properly test ALL validator types
-
     static bool stringToBool(String string_);
     bool isBool(String string_);
     bool isStringNumeric(String string_);
@@ -160,7 +158,7 @@ inline bool RequestValidator::min(String string_, int minValue)
 
 inline bool RequestValidator::max(String string_, int maxValue)
 {
-    return string_.toInt() >= maxValue;
+    return string_.toInt() <= maxValue;
 }
 
 inline bool RequestValidator::min(String string_, float minValue)
@@ -170,7 +168,7 @@ inline bool RequestValidator::min(String string_, float minValue)
 
 inline bool RequestValidator::max(String string_, float maxValue)
 {
-    return string_.toFloat() >= maxValue;
+    return string_.toFloat() <= maxValue;
 }
 
 inline bool RequestValidator::between(String string_, int minValue, int maxValue)

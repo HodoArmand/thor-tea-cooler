@@ -4,41 +4,13 @@
 
 class SetNetworkConfigRequest : public Request
 {
-
-    using Request::Request;
-
 public:
-    bool validate();
+    SetNetworkConfigRequest(AsyncWebServerRequest *request) : Request(request)
+    {
+        rules = {
+            {"header", "apiHeader"},
+            {"debugMode", "required|bool"},
+            {"ssid", "required"},
+            {"password", "required"}};
+    }
 };
-
-bool SetNetworkConfigRequest::validate()
-{
-    if (!validator.isApiHeaderValid(headers))
-    {
-        addValidationError("Bad API header.");
-    }
-
-    setRequiredFields({"debugMode", "ssid", "password"});
-
-    if (!checkRequiredFields())
-    {
-        return false;
-    }
-    else
-    {
-        String debugMode = getBodyParamValueByName("debugMode");
-        if (!validator.isBool(debugMode))
-        {
-            addValidationError("debugMode must be a boolean value.");
-        }
-
-        if (validationErrors.size() != 0)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-}

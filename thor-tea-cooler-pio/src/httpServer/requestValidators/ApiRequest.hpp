@@ -4,25 +4,10 @@
 
 class ApiRequest : public Request
 {
-    using Request::Request;
-
 public:
-    bool validate();
+    ApiRequest(AsyncWebServerRequest *request) : Request(request)
+    {
+        rules = {
+            {"header", "apiHeader"}};
+    }
 };
-
-bool ApiRequest::validate()
-{
-    if (!validator.isApiHeaderValid(headers))
-    {
-        addValidationError("Bad API header.");
-    }
-
-    if (validationErrors.size() != 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
