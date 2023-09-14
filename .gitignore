@@ -6,3 +6,5 @@ thor-tea-cooler-pio/thor-tea-cooler-pio.code-workspace
 thor-tea-cooler-pio/data/serverConfig.json
 thor-tea-cooler-pio/data/users.json
 thor-tea-cooler-pio/data/apiKeys.json
+
+.idea/

@@ -1,0 +1,7 @@
+{
+  "name": "Thor Tea Cooler",
+  "version": "1.0.0",
+  "description": "HTTP Json API documentation for TTC.",
+  "title": "TTC API",
+  "url" : "http://ttc.test"
+}
