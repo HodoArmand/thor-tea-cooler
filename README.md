@@ -1,3 +1,18 @@
+- [Thor Tea Cooler - Introduction](#thor-tea-cooler---introduction)
+- [Key Features \& Functionalities](#key-features--functionalities)
+  - [Cooling \& Auto thermostat](#cooling--auto-thermostat)
+  - [Authorization](#authorization)
+  - [HTTP API](#http-api)
+  - [API Frontend Application](#api-frontend-application)
+- [Hardware requirements](#hardware-requirements)
+  - [Parts list](#parts-list)
+  - [Wiring Diagram](#wiring-diagram)
+- [Software Build \& Deploy](#software-build--deploy)
+- [Software Architecture Overview](#software-architecture-overview)
+  - [Model Layer - Hardware Functions](#model-layer---hardware-functions)
+  - [Controller and Routing Layer](#controller-and-routing-layer)
+  - [Live Data](#live-data)
+
 # Thor Tea Cooler - Introduction
 
 Thor Tea Cooler is an ESP32-based IoT device specifically crafted to cool beverages and other liquids to a delightful target temperature of your choice.
