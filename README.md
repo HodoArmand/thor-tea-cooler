@@ -1,3 +1,6 @@
+# Table of Contents
+
+- [Table of Contents](#table-of-contents)
 - [Thor Tea Cooler - Introduction](#thor-tea-cooler---introduction)
 - [Key Features \& Functionalities](#key-features--functionalities)
   - [Cooling \& Auto thermostat](#cooling--auto-thermostat)
