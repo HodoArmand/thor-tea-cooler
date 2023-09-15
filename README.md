@@ -22,7 +22,7 @@ Whether you're building conventional web apps, single-page applications (SPAs), 
 
 The device's functions can be interacted with trough WiFi/HTTP. Network, server and hardware settings can be configured for different hardware and software specification. For a full overview of all available API commands and HTTP Request rules, see: [API Documentation](https://github.com/HodoArmand/thor-tea-cooler/tree/dev/docs/apidoc)
 
-![API doc sample](docs/apidoc/apiDoc sample.JPG)
+![API doc sample](docs/apidoc/apiDoc%20sample.JPG)
 
 ## API Frontend Application
 
