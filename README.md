@@ -32,7 +32,7 @@ For a simple frontend application implementation, see: [Thor Tea Cooler | Fronte
 
 # Hardware requirements
 
-##Parts list
+## Parts list
 
 - 1x ESP32 microcontroller with at least 4MB flash memory
 - 1x DC12V powersource
@@ -45,7 +45,7 @@ For a simple frontend application implementation, see: [Thor Tea Cooler | Fronte
 - 2x 3.3V switchable DC relays
 - 2x 12V fans (stronger generic PC fans ideal)
 
-##Wiring Diagram
+## Wiring Diagram
 
 Drawn with [KiCad](https://www.kicad.org/), a Cross Platform and Open Source Electronics Design Automation Suite project files, see: [KiCad Files](docs/hardware/thor-tea-cooler/wiring%20diagram%20-%20kiCad)
 
