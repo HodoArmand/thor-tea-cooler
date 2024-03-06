@@ -3,7 +3,8 @@
 #include <Arduino.h>
 
 #include <WiFi.h>
-#include <AsyncTCP.h>
+// #include <AsyncTCP.h>
+#include "../lib/AsyncTCPQuemod/AsyncTCP.h"
 #include "ESPAsyncWebServer.h"
 #include "hardware/ttcHardware.hpp"
 #include "network/wifiNetworkAdapter.hpp"
