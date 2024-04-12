@@ -197,6 +197,10 @@ void AuthController::deleteUser(AsyncWebServerRequest *request_)
             {
                 simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
             }
+            else if (!auth->loadUsersFromDisk())
+            {
+                simpleResponse(request_, 500, "Serverside IO error.", "The user was deleted but there was an error when loading the new DB state.");
+            }
             else
             {
                 simpleCreatedResponse(request_);
