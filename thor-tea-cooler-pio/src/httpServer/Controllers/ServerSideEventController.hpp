@@ -41,14 +41,14 @@ void ServerSideEventController::handleOnConnect()
     if(client->lastId()){
       Serial.printf("SSE client connected, ID: %u\n", client->lastId());
     }
-    client->send("SSE hello!", NULL, millis(), 10000); });
+    client->send("SSE hello!", "ping", millis(), 10000); });
 
     server->addHandler(events);
 }
 
 inline void ServerSideEventController::ping()
 {
-    events->send("ping", NULL, millis());
+    events->send("ping", "ping", millis());
 }
 
 inline void ServerSideEventController::sendEvent(String serializedJsonData, String eventName)
