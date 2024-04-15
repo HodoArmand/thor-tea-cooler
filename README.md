@@ -42,9 +42,11 @@ The device's functions can be interacted with trough WiFi/HTTP. Network, server 
 
 ![API doc sample](docs/apidoc/apiDoc%20sample.JPG)
 
-## API Frontend Application
+## API Frontend Applications
 
 For a simple frontend application implementation, see: [Thor Tea Cooler | Frontend | basic HTML + CSS](https://github.com/HodoArmand/thor-tea-cooler-frontend-basic)
+
+SPA frontend application with the same functionality, built with ReactJS and Vite: [Thor Tea Cooler | Frontend | ReactJS](https://github.com/HodoArmand/thor-tea-cooler-react-js)
 
 ![Screenshot - Light mode](https://github.com/HodoArmand/thor-tea-cooler-frontend-basic/blob/main/docs/ttcScreenshotLight.JPG)
 
