@@ -18,6 +18,8 @@ public:
     WifiNetworkAdapter(NetworkConfiguration *config);
     ~WifiNetworkAdapter();
 
+    void setSleep(bool shouldSleep);
+
     String getSsid() const { return ssid; }
     void setSsid(const String &ssid_) { ssid = ssid_; }
 
@@ -49,10 +51,16 @@ WifiNetworkAdapter::WifiNetworkAdapter(NetworkConfiguration *config)
 {
     ssid = config->getSsid();
     password = config->getPassword();
+    this->setSleep(false);
 }
 
 WifiNetworkAdapter::~WifiNetworkAdapter()
 {
+}
+
+void setSleep(bool shouldSleep)
+{
+    WiFi.setSleep(shouldSleep);
 }
 
 String WifiNetworkAdapter::ipToString(const IPAddress &ipAddress)
