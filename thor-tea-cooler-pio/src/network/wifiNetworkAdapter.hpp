@@ -11,7 +11,7 @@ private:
     IPAddress ip;
     unsigned long checkForWifiIntervalInMs = 10000;
 
-    int reconnectDelayInMs = 1000;
+    int reconnectDelayInMs = 5000;
     int reconnectTimeoutCycles = 0;
 
 public:
@@ -58,7 +58,7 @@ WifiNetworkAdapter::~WifiNetworkAdapter()
 {
 }
 
-void setSleep(bool shouldSleep)
+void WifiNetworkAdapter::setSleep(bool shouldSleep)
 {
     WiFi.setSleep(shouldSleep);
 }
