@@ -56,13 +56,13 @@ SPA frontend application with the same functionality, built with ReactJS and Vit
 
 - 1x ESP32 microcontroller with at least 4MB flash memory
 - 1x DC12V powersource
-- 1x DC12V->DV3.3V converter
+- 1x DC12V->DC3.3V converter
 - (optional) barreljacks for quick PSU/fan switching and replacement
 - 1x 4.7k Ohm resistor
 - 1x DS18B20 digital temperature sensor
 - 2x PNP transistors
 - 2x 1N4001 diodes
-- 2x 3.3V switchable DC relays
+- 2x 3.3V DC relays
 - 2x 12V fans (stronger generic PC fans ideal)
 
 ## Wiring Diagram
