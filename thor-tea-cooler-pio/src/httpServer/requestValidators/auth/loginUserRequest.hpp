@@ -5,10 +5,10 @@
 class LoginUserRequest : public Request
 {
 public:
-    LoginUserRequest(AsyncWebServerRequest *request) : Request(request)
+    LoginUserRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
-            {"header","loginApiHeader"},
+            {"header", "loginApiHeader"},
             {"name", "required|minLength:3|maxLength:32"},
             {"password", "required|minLength:8|maxLength:32"}};
     }

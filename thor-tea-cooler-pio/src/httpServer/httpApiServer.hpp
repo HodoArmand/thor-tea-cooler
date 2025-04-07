@@ -2,7 +2,9 @@
 
 // #include <AsyncTCP.h>
 #include "../lib/AsyncTCPQuemod/AsyncTCP.h"
-#include <ESPAsyncWebServer.h>
+// // #include <ESPPsychicHttpServer.h>
+#include <PsychicHttp.h>
+#include <PsychicHttp.h>
 
 #include "Authorization.hpp"
 
@@ -32,7 +34,7 @@ public:
 
     TtcHardware *hw;
     Authorization *auth;
-    AsyncWebServer *server;
+    PsychicHttpServer *server;
 
     HardwareConfiguration *hwConfig;
     NetworkConfiguration *networkConfig;
@@ -66,7 +68,7 @@ HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_, Har
     if (auth->initFileSystem() && auth->loadUsersFromDisk() && auth->loadApiKeysFromDisk())
     {
         setState(AUTH_LOADED);
-        server = new AsyncWebServer(config_->getPort());
+        server = new PsychicHttpServer();
     }
     else
     {
@@ -85,19 +87,21 @@ inline void HttpApiServer::broadcastTeaState()
 
 void HttpApiServer::initializeApi()
 {
-    server->onNotFound([](AsyncWebServerRequest *request)
+    server->config.max_uri_handlers = 100;
+    server->listen(80);
+    server->onNotFound([](PsychicRequest *request)
                        {
-                           if (request->method() == HTTP_OPTIONS)
-                           {
-                               request->send(200);
-                           }
-                           else
-                           {
-                               Controller::simpleNotFoundResponse(request);
-                           } });
+        if (request->method() == HTTP_OPTIONS)
+        {
+            return request->reply(200);
+        }
+        else
+        {
+            return Controller::simpleNotFoundResponse(request);
+        } });
 
-    server->on("/isTtc", HTTP_GET, [&](AsyncWebServerRequest *request)
-               { Controller::simpleResponse(request, 200, "yes", "Yes, TTC Device."); });
+    server->on("/isTtc", HTTP_GET, [&](PsychicRequest *request)
+               { return Controller::simpleResponse(request, 200, "yes", "Yes, TTC Device."); });
 
     sseRouter = new ServerSideEventRouter(hw, server, "/events");
 
@@ -118,7 +122,6 @@ void HttpApiServer::initializeApi()
 
 void HttpApiServer::startApi()
 {
-    server->begin();
     setState(SRV_RUNNING);
     Serial.println("Server initialized, running...");
 }

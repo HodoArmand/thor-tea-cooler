@@ -5,7 +5,7 @@
 class RegisterUserRequest : public Request
 {
 public:
-    RegisterUserRequest(AsyncWebServerRequest *request) : Request(request)
+    RegisterUserRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

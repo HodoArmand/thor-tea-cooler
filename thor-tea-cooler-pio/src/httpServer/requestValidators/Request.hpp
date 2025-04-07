@@ -37,7 +37,8 @@ private:
         "inArray"};
 
 public:
-    Request(AsyncWebServerRequest *request);
+    Request(PsychicRequest *request);
+    Request(PsychicRequest *request, JsonVariant &json);
     ~Request();
 
     RequestValidator validator;
@@ -51,8 +52,8 @@ public:
     vector<RequestRule> rules;
     vector<String> requiredFields;
 
-    void processRequestHeader(AsyncWebServerRequest *request);
-    void processRequestBody(AsyncWebServerRequest *request);
+    void processRequestHeader(PsychicRequest *request);
+    void processRequestBody(JsonVariant &json);
 
     bool validate();
 
@@ -76,11 +77,20 @@ public:
     bool checkRequiredFields();
 };
 
-Request::Request(AsyncWebServerRequest *request)
+Request::Request(PsychicRequest *request)
 {
     processRequestHeader(request);
-    processRequestBody(request);
-    method = request->methodToString();
+    method = request->methodStr();
+    contentLength = request->contentLength();
+    url = request->url();
+    validationErrors.clear();
+}
+
+Request::Request(PsychicRequest *request, JsonVariant &json)
+{
+    processRequestHeader(request);
+    processRequestBody(json);
+    method = request->methodStr();
     contentLength = request->contentLength();
     url = request->url();
     validationErrors.clear();
@@ -346,37 +356,31 @@ bool Request::validate()
     return validationErrors.size() == 0;
 }
 
-inline void Request::processRequestHeader(AsyncWebServerRequest *request)
+inline void Request::processRequestHeader(PsychicRequest *request)
 {
-    int headerCount = request->headers();
-    if (headerCount != 0)
+    String header_keys[3] = {"Content-Type", "Accept", "Authorization"};
+    headers.reserve(3);
+
+    RequestHeader headerValue;
+    for (size_t i = 0; i < 3; i++)
     {
-        headers.reserve(headerCount);
-        RequestHeader headerValue;
-        for (size_t i = 0; i < headerCount; i++)
-        {
-            AsyncWebHeader *header = request->getHeader(i);
-            headerValue.key = String(request->headerName(i));
-            headerValue.value = String(request->header(i));
-            headers.push_back(headerValue);
-        }
+        String header_value = request->header(header_keys[i].c_str());
+        headerValue.key = String(header_keys[i]);
+        headerValue.value = String(header_value);
+        headers.push_back(headerValue);
     }
 }
 
-inline void Request::processRequestBody(AsyncWebServerRequest *request)
+inline void Request::processRequestBody(JsonVariant &json)
 {
-    int bodyParameterCount = request->params();
-    if (bodyParameterCount != 0)
+    JsonObject input = json.as<JsonObject>();
+
+    for (JsonPair key_value_pair : input)
     {
-        bodyParams.reserve(bodyParameterCount);
         RequestBodyParameter bodyParam;
-        for (size_t i = 0; i < bodyParameterCount; i++)
-        {
-            AsyncWebParameter *parameter = request->getParam(i);
-            bodyParam.key = String(parameter->name());
-            bodyParam.value = String(parameter->value());
-            bodyParams.push_back(bodyParam);
-        }
+        bodyParam.key = String(key_value_pair.key().c_str());
+        bodyParam.value = key_value_pair.value().as<String>();
+        bodyParams.push_back(bodyParam);
     }
 }
 

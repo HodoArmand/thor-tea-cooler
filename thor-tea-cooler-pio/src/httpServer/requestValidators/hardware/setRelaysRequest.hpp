@@ -5,7 +5,7 @@
 class SetRelaysRequest : public Request
 {
 public:
-    SetRelaysRequest(AsyncWebServerRequest *request) : Request(request)
+    SetRelaysRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

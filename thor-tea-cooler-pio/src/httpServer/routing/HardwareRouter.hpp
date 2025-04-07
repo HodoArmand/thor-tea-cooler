@@ -8,7 +8,7 @@ class HardwareRouter : public Router
 {
 
 private:
-    AsyncWebServer *server;
+    PsychicHttpServer *server;
     HardwareController *hwController;
     ServerSideEventRouter *sse;
 
@@ -25,15 +25,15 @@ private:
     void onRestartMcu();
 
 public:
-    HardwareRouter(AsyncWebServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_);
+    HardwareRouter(PsychicHttpServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_);
     ~HardwareRouter();
 };
 
-inline HardwareRouter::HardwareRouter(AsyncWebServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_)
+inline HardwareRouter::HardwareRouter(PsychicHttpServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_)
 {
     server = server_;
 
-    hwController = new HardwareController(auth_, hw_);
+    hwController = new HardwareController(auth_, hw_, sse_);
 
     sse = sse_;
 
@@ -56,70 +56,54 @@ HardwareRouter::~HardwareRouter()
 
 void HardwareRouter::onGetHardwareState()
 {
-    server->on("/getHardwareState", HTTP_GET, [&](AsyncWebServerRequest *request)
-               { 
-                hwController->getHardwareState(request); 
-               sse->sendTeaState(); });
+    server->on("/getHardwareState", HTTP_GET, [&](PsychicRequest *request)
+               { return hwController->getHardwareState(request); });
 }
 
 void HardwareRouter::onSwitchRelay()
 {
-    server->on("/switchRelay", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { 
-                hwController->switchRelay(request);
-               sse->sendTeaState(); });
+    server->on("/switchRelay", HTTP_POST, [&](PsychicRequest *request, JsonVariant &json)
+               { return hwController->switchRelay(request, json); });
 }
 
 void HardwareRouter::onSetRelays()
 {
-    server->on("/setRelays", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { 
-                hwController->setRelays(request); 
-               sse->sendTeaState(); });
+    server->on("/setRelays", HTTP_POST, [&](PsychicRequest *request, JsonVariant &json)
+               { return hwController->setRelays(request, json); });
 }
 
 inline void HardwareRouter::onSetModeManual()
 {
-    server->on("/setModeManual", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { 
-                hwController->setModeManual(request);
-               sse->sendTeaState(); });
+    server->on("/setModeManual", HTTP_POST, [&](PsychicRequest *request)
+               { return hwController->setModeManual(request); });
 }
 
 inline void HardwareRouter::onSetModeAuto()
 {
-    server->on("/setModeAuto", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { 
-                hwController->setModeAuto(request);
-               sse->sendTeaState(); });
+    server->on("/setModeAuto", HTTP_POST, [&](PsychicRequest *request)
+               { return hwController->setModeAuto(request); });
 }
 
 inline void HardwareRouter::onSetTargetTemperature()
 {
-    server->on("/setTargetTemperature", HTTP_POST, [&](AsyncWebServerRequest *request)
-               {
-                 hwController->setTargetTemperature(request);
-               sse->sendTeaState(); });
+    server->on("/setTargetTemperature", HTTP_POST, [&](PsychicRequest *request, JsonVariant &json)
+               { return hwController->setTargetTemperature(request, json); });
 }
 
 inline void HardwareRouter::onStartAutoCooling()
 {
-    server->on("/startAutoCooling", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { 
-                hwController->startAutoCooling(request);
-               sse->sendTeaState(); });
+    server->on("/startAutoCooling", HTTP_POST, [&](PsychicRequest *request)
+               { return hwController->startAutoCooling(request); });
 }
 
 inline void HardwareRouter::onStopAutoCooling()
 {
-    server->on("/stopAutoCooling", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { 
-                hwController->stopAutoCooling(request);
-               sse->sendTeaState(); });
+    server->on("/stopAutoCooling", HTTP_POST, [&](PsychicRequest *request)
+               { return hwController->stopAutoCooling(request); });
 }
 
 inline void HardwareRouter::onRestartMcu()
 {
-    server->on("/restartMcu", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { hwController->restartMcu(request); });
+    server->on("/restartMcu", HTTP_POST, [&](PsychicRequest *request)
+               { return hwController->restartMcu(request); });
 }

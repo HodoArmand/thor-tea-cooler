@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ESPAsyncWebServer.h>
+#include <PsychicHttp.h>
 #include <ArduinoJson.h>
 
 class Controller
@@ -10,15 +10,13 @@ public:
     Controller(/* args */);
     ~Controller();
 
-    static void simpleResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
-    static void simpleBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
-    static void simpleVeryBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText);
-    static void simpleOkResponse(AsyncWebServerRequest *request);
-    static void simpleCreatedResponse(AsyncWebServerRequest *request);
-    static void simpleUnauthorizedResponse(AsyncWebServerRequest *request);
-    static void simpleNotFoundResponse(AsyncWebServerRequest *request);
+    static esp_err_t simpleResponse(PsychicRequest *request, int responseCode, String statusText, String msgText);
+    static esp_err_t simpleOkResponse(PsychicRequest *request);
+    static esp_err_t simpleCreatedResponse(PsychicRequest *request);
+    static esp_err_t simpleUnauthorizedResponse(PsychicRequest *request);
+    static esp_err_t simpleNotFoundResponse(PsychicRequest *request);
 
-    static void validationErrorsResponse(AsyncWebServerRequest *request, vector<String> validationErrors);
+    static esp_err_t validationErrorsResponse(PsychicRequest *request, vector<String> validationErrors);
 };
 
 Controller::Controller(/* args */)
@@ -29,97 +27,51 @@ Controller::~Controller()
 {
 }
 
-void Controller::simpleResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText)
+esp_err_t Controller::simpleResponse(PsychicRequest *request, int responseCode, String statusText, String msgText)
 {
-    String responseBody;
-    DynamicJsonDocument json(200);
+    PsychicJsonResponse response = PsychicJsonResponse(request);
+    response.setCode(responseCode);
+    response.setContentType("application/json");
+    JsonObject json = response.getRoot();
     json["status"] = statusText;
     json["msg"] = msgText;
-    serializeJsonPretty(json, responseBody);
-    json.clear();
 
-    request->send(responseCode, "application/json", responseBody);
+    return response.send();
 }
 
-void Controller::simpleBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText)
+esp_err_t Controller::simpleOkResponse(PsychicRequest *request)
 {
-    String responseBody;
-    DynamicJsonDocument json(2048);
-    json["status"] = statusText;
-    json["msg"] = msgText;
-    serializeJsonPretty(json, responseBody);
-    json.clear();
-
-    request->send(responseCode, "application/json", responseBody);
+    return simpleResponse(request, 200, "ok", "ok");
 }
 
-void Controller::simpleVeryBigResponse(AsyncWebServerRequest *request, int responseCode, String statusText, String msgText)
+esp_err_t Controller::simpleCreatedResponse(PsychicRequest *request)
 {
-    String responseBody;
-    DynamicJsonDocument json(5000);
-    json["status"] = statusText;
-    json["msg"] = msgText;
-    serializeJsonPretty(json, responseBody);
-    json.clear();
-
-    request->send(responseCode, "application/json", responseBody);
+    return simpleResponse(request, 201, "ok", "ok");
 }
 
-void Controller::simpleOkResponse(AsyncWebServerRequest *request)
+esp_err_t Controller::simpleUnauthorizedResponse(PsychicRequest *request)
 {
-    String responseBody;
-    DynamicJsonDocument json(200);
-    json["status"] = "ok";
-    json["msg"] = "ok";
-    serializeJsonPretty(json, responseBody);
-    json.clear();
-    request->send(200, "application/json", responseBody);
+    return simpleResponse(request, 403, "Unauthorized.", "Unauthorized to access this resource.");
 }
 
-void Controller::simpleCreatedResponse(AsyncWebServerRequest *request)
+inline esp_err_t Controller::simpleNotFoundResponse(PsychicRequest *request)
 {
-    String responseBody;
-    DynamicJsonDocument json(200);
-    json["status"] = "ok";
-    json["msg"] = "ok";
-    serializeJsonPretty(json, responseBody);
-    json.clear();
-
-    request->send(201, "application/json", responseBody);
+    return simpleResponse(request, 404, "Not found.", "The requested resource/route was not found.");
 }
 
-void Controller::simpleUnauthorizedResponse(AsyncWebServerRequest *request)
+esp_err_t Controller::validationErrorsResponse(PsychicRequest *request, vector<String> validationErrors)
 {
-
-    String responseBody;
-    DynamicJsonDocument json(200);
-    json["status"] = "Unauthorized.";
-    json["msg"] = "Unauthorized to access this resource.";
-    serializeJsonPretty(json, responseBody);
-    json.clear();
-
-    request->send(403, "application/json", responseBody);
-}
-
-inline void Controller::simpleNotFoundResponse(AsyncWebServerRequest *request)
-{
-    simpleResponse(request, 404, "Not found.", "The requested resource/route was not found.");
-}
-
-void Controller::validationErrorsResponse(AsyncWebServerRequest *request, vector<String> validationErrors)
-{
-    String responseBody;
-    DynamicJsonDocument json(2048);
+    PsychicJsonResponse response = PsychicJsonResponse(request);
+    response.setCode(400);
+    response.setContentType("application/json");
+    JsonObject json = response.getRoot();
     json["status"] = "Bad request.";
     json["msg"] = "Missing or incorrect request fields.";
-
-    JsonArray fieldErrorsJson = json.createNestedArray("fieldErrors");
-
+    JsonArray errors = json["fieldErrors"].to<JsonArray>();
     for (String validationError : validationErrors)
     {
-        fieldErrorsJson.add(validationError);
+        errors.add(validationError);
     }
 
-    serializeJsonPretty(json, responseBody);
-    request->send(400, "application/json", responseBody);
+    return response.send();
 }

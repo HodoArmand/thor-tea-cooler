@@ -5,7 +5,7 @@
 class SetTargetTemperatureRequest : public Request
 {
 public:
-    SetTargetTemperatureRequest(AsyncWebServerRequest *request) : Request(request)
+    SetTargetTemperatureRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

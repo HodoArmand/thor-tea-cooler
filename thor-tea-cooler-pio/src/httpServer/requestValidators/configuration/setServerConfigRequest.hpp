@@ -5,7 +5,7 @@
 class SetServerConfigRequest : public Request
 {
 public:
-    SetServerConfigRequest(AsyncWebServerRequest *request) : Request(request)
+    SetServerConfigRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

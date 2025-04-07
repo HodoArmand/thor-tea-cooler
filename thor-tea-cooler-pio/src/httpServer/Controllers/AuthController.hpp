@@ -1,12 +1,13 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ESPAsyncWebServer.h>
+// // #include <ESPPsychicHttpServer.h>
+#include <PsychicHttp.h>
 
 #include "httpServer/Controllers/Controller.hpp"
 #include "httpServer/Authorization.hpp"
+#include "httpServer/requestValidators/ApiRequest.hpp"
 #include "httpServer/requestValidators/auth/loginUserRequest.hpp"
-#include "httpServer/requestValidators/auth/logoutUserRequest.hpp"
 #include "httpServer/requestValidators/auth/registerUserRequest.hpp"
 #include "httpServer/requestValidators/auth/editUserRequest.hpp"
 #include "httpServer/requestValidators/auth/deleteUserRequest.hpp"
@@ -20,11 +21,11 @@ public:
     AuthController(Authorization *auth_);
     ~AuthController();
 
-    void login(AsyncWebServerRequest *request_);
-    void logout(AsyncWebServerRequest *request_);
-    void registerUser(AsyncWebServerRequest *request_);
-    void editUser(AsyncWebServerRequest *request_);
-    void deleteUser(AsyncWebServerRequest *request_);
+    esp_err_t login(PsychicRequest *request_, JsonVariant &json);
+    esp_err_t logout(PsychicRequest *request_);
+    esp_err_t registerUser(PsychicRequest *request_, JsonVariant &json);
+    esp_err_t editUser(PsychicRequest *request_, JsonVariant &json);
+    esp_err_t deleteUser(PsychicRequest *request_, JsonVariant &json);
 };
 
 AuthController::AuthController(Authorization *auth_)
@@ -36,14 +37,15 @@ AuthController::~AuthController()
 {
 }
 
-void AuthController::login(AsyncWebServerRequest *request_)
+esp_err_t AuthController::login(PsychicRequest *request_, JsonVariant &json)
 {
 
-    LoginUserRequest request(request_);
+    LoginUserRequest request(request_, json);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else
     {
@@ -51,26 +53,29 @@ void AuthController::login(AsyncWebServerRequest *request_)
 
         if (authResult == "0")
         {
-            simpleResponse(request_, 401, "Bad credentials.", "The provided login credentials don't match any of our records.");
+            response = simpleResponse(request_, 401, "Bad credentials.", "The provided login credentials don't match any of our records.");
         }
         else if (authResult == "ERROR: DISK IO")
         {
-            simpleResponse(request_, 500, "Serverside IO error.", "The provided login credentials are correct, but there has been an error when saving them to our system.");
+            response = simpleResponse(request_, 500, "Serverside IO error.", "The provided login credentials are correct, but there has been an error when saving them to our system.");
         }
         else
         {
-            simpleResponse(request_, 201, "ok", authResult);
+            response = simpleResponse(request_, 201, "ok", authResult);
         }
     }
+
+    return response;
 }
 
-void AuthController::logout(AsyncWebServerRequest *request_)
+esp_err_t AuthController::logout(PsychicRequest *request_)
 {
-    LogoutUserRequest request(request_);
+    ApiRequest request(request_);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else
     {
@@ -78,29 +83,32 @@ void AuthController::logout(AsyncWebServerRequest *request_)
 
         if (userId == -1)
         {
-            simpleUnauthorizedResponse(request_);
+            response = simpleUnauthorizedResponse(request_);
         }
         else
         {
             if (!auth->logoutUser(userId))
             {
-                simpleResponse(request_, 500, "Serverside IO error.", "The provided logout credentials are correct, but there has been an error when saving the changes to our system.");
+                response = simpleResponse(request_, 500, "Serverside IO error.", "The provided logout credentials are correct, but there has been an error when saving the changes to our system.");
             }
             else
             {
-                simpleCreatedResponse(request_);
+                response = simpleCreatedResponse(request_);
             }
         }
     }
+
+    return response;
 }
 
-void AuthController::registerUser(AsyncWebServerRequest *request_)
+esp_err_t AuthController::registerUser(PsychicRequest *request_, JsonVariant &json)
 {
-    RegisterUserRequest request(request_);
+    RegisterUserRequest request(request_, json);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else
     {
@@ -108,7 +116,7 @@ void AuthController::registerUser(AsyncWebServerRequest *request_)
 
         if (userId == -1)
         {
-            simpleUnauthorizedResponse(request_);
+            response = simpleUnauthorizedResponse(request_);
         }
         else
         {
@@ -119,27 +127,30 @@ void AuthController::registerUser(AsyncWebServerRequest *request_)
             {
                 if (registerUserResult == REG_USR_NAME_TAKEN)
                 {
-                    simpleResponse(request_, 400, "Name taken.", "The provided name is already taken.");
+                    response = simpleResponse(request_, 400, "Name taken.", "The provided name is already taken.");
                 }
                 else if (registerUserResult == REG_USR_DISK_ERR)
                 {
-                    simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
+                    response = simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
                 }
             }
             else
             {
-                simpleCreatedResponse(request_);
+                response = simpleCreatedResponse(request_);
             }
         }
     }
+
+    return response;
 }
-void AuthController::editUser(AsyncWebServerRequest *request_)
+esp_err_t AuthController::editUser(PsychicRequest *request_, JsonVariant &json)
 {
-    EditUserRequest request(request_);
+    EditUserRequest request(request_, json);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        return validationErrorsResponse(request_, request.validationErrors);
     }
     else
     {
@@ -147,7 +158,7 @@ void AuthController::editUser(AsyncWebServerRequest *request_)
 
         if (user.getId() == -1)
         {
-            simpleUnauthorizedResponse(request_);
+            response = simpleUnauthorizedResponse(request_);
         }
         else
         {
@@ -162,22 +173,25 @@ void AuthController::editUser(AsyncWebServerRequest *request_)
 
             if (!auth->editUser(user.getId(), user.getName(), user.getPassword()))
             {
-                simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
+                response = simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
             }
             else
             {
-                simpleCreatedResponse(request_);
+                response = simpleCreatedResponse(request_);
             }
         }
     }
+
+    return response;
 }
-void AuthController::deleteUser(AsyncWebServerRequest *request_)
+esp_err_t AuthController::deleteUser(PsychicRequest *request_, JsonVariant &json)
 {
-    DeleteUserRequest request(request_);
+    DeleteUserRequest request(request_, json);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else
     {
@@ -185,26 +199,28 @@ void AuthController::deleteUser(AsyncWebServerRequest *request_)
 
         if (user.getId() == -1)
         {
-            simpleUnauthorizedResponse(request_);
+            response = simpleUnauthorizedResponse(request_);
         }
         else
         {
             if (request.getBodyParamValueByName("password") != user.getPassword())
             {
-                simpleResponse(request_, 401, "Bad credentials.", "Delete operation refused: Wrong password.");
+                response = simpleResponse(request_, 401, "Bad credentials.", "Delete operation refused: Wrong password.");
             }
             else if (!auth->deleteUser(user.getId()))
             {
-                simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
+                response = simpleResponse(request_, 500, "Serverside IO error.", "The provided credentials are correct, but there has been an error when saving them to our system.");
             }
             else if (!auth->loadUsersFromDisk())
             {
-                simpleResponse(request_, 500, "Serverside IO error.", "The user was deleted but there was an error when loading the new DB state.");
+                response = simpleResponse(request_, 500, "Serverside IO error.", "The user was deleted but there was an error when loading the new DB state.");
             }
             else
             {
-                simpleCreatedResponse(request_);
+                response = simpleCreatedResponse(request_);
             }
         }
     }
+
+    return response;
 }

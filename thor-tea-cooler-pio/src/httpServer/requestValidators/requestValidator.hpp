@@ -4,7 +4,9 @@
 #include <vector>
 #include <algorithm>
 #include <StringSplitter.h>
-#include <ESPAsyncWebServer.h>
+// // #include <ESPPsychicHttpServer.h>
+#include <PsychicHttp.h>
+#include <PsychicHttp.h>
 
 #include "httpServer/ApiKey.hpp"
 #include "hardware/relay.hpp"
@@ -302,7 +304,7 @@ inline bool RequestValidator::isLoginApiHeaderValid(vector<RequestHeader> header
 
     for (RequestHeader header : headers)
     {
-        if (header.key == "Content-Type" && header.value == R"(application/x-www-form-urlencoded)")
+        if (header.key == "Content-Type" && header.value == R"(application/json)")
         {
             isUrlEncodedrequest = true;
         }
@@ -321,7 +323,7 @@ inline bool RequestValidator::isApiHeaderValid(vector<RequestHeader> headers)
 
     for (RequestHeader header : headers)
     {
-        if (header.key == "Content-Type" && header.value == R"(application/x-www-form-urlencoded)")
+        if (header.key == "Content-Type" && header.value == R"(application/json)")
         {
             isUrlEncodedrequest = true;
         }

@@ -5,7 +5,8 @@
 #include <WiFi.h>
 // #include <AsyncTCP.h>
 #include "../lib/AsyncTCPQuemod/AsyncTCP.h"
-#include "ESPAsyncWebServer.h"
+// #include "ESPPsychicHttpServer.h"
+#include <PsychicHttp.h>
 #include "hardware/ttcHardware.hpp"
 #include "network/wifiNetworkAdapter.hpp"
 #include "httpServer/httpApiServer.hpp"

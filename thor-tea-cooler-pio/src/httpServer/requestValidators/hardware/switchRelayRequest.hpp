@@ -4,7 +4,7 @@
 class SwitchRelayRequest : public Request
 {
 public:
-    SwitchRelayRequest(AsyncWebServerRequest *request) : Request(request)
+    SwitchRelayRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

@@ -5,7 +5,7 @@
 class EditUserRequest : public Request
 {
 public:
-    EditUserRequest(AsyncWebServerRequest *request) : Request(request)
+    EditUserRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

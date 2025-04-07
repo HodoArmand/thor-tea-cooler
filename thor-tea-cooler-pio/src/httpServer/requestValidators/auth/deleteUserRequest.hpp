@@ -6,7 +6,7 @@ class DeleteUserRequest : public Request
 {
 
 public:
-    DeleteUserRequest(AsyncWebServerRequest *request) : Request(request)
+    DeleteUserRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

@@ -5,7 +5,7 @@
 class ApiRequest : public Request
 {
 public:
-    ApiRequest(AsyncWebServerRequest *request) : Request(request)
+    ApiRequest(PsychicRequest *request) : Request(request)
     {
         rules = {
             {"header", "apiHeader"}};

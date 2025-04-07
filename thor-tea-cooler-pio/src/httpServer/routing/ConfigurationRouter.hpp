@@ -7,7 +7,7 @@ class ConfigurationRouter : public Router
 {
 
 private:
-    AsyncWebServer *server;
+    PsychicHttpServer *server;
 
     Authorization *auth;
     HardwareConfiguration *hwConfig;
@@ -16,7 +16,7 @@ private:
     ConfigurationController *configController;
 
 public:
-    ConfigurationRouter(AsyncWebServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_);
+    ConfigurationRouter(PsychicHttpServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_);
     ~ConfigurationRouter();
 
     void onGetHardwareConfig();
@@ -29,7 +29,7 @@ public:
     void onSetServerConfig();
 };
 
-inline ConfigurationRouter::ConfigurationRouter(AsyncWebServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
+inline ConfigurationRouter::ConfigurationRouter(PsychicHttpServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
 {
     server = server_;
     auth = auth_;
@@ -55,36 +55,36 @@ ConfigurationRouter::~ConfigurationRouter()
 
 void ConfigurationRouter::onGetHardwareConfig()
 {
-    server->on("/getHardwareConfig", HTTP_GET, [&](AsyncWebServerRequest *request)
-               { configController->getHardwareConfig(request); });
+    server->on("/getHardwareConfig", HTTP_GET, [&](PsychicRequest *request, JsonVariant &json)
+               { return configController->getHardwareConfig(request); });
 }
 
 void ConfigurationRouter::onSetHardwareConfig()
 {
-    server->on("/setHardwareConfig", HTTP_PUT, [&](AsyncWebServerRequest *request)
-               { configController->setHardwareConfig(request); });
+    server->on("/setHardwareConfig", HTTP_PUT, [&](PsychicRequest *request, JsonVariant &json)
+               { return configController->setHardwareConfig(request, json); });
 }
 
 void ConfigurationRouter::onGetNetworkConfig()
 {
-    server->on("/getNetworkConfig", HTTP_GET, [&](AsyncWebServerRequest *request)
-               { configController->getNetworkConfig(request); });
+    server->on("/getNetworkConfig", HTTP_GET, [&](PsychicRequest *request, JsonVariant &json)
+               { return configController->getNetworkConfig(request); });
 }
 
 void ConfigurationRouter::onSetNetworkConfig()
 {
-    server->on("/setNetworkConfig", HTTP_PUT, [&](AsyncWebServerRequest *request)
-               { configController->setNetworkConfig(request); });
+    server->on("/setNetworkConfig", HTTP_PUT, [&](PsychicRequest *request, JsonVariant &json)
+               { return configController->setNetworkConfig(request, json); });
 }
 
 void ConfigurationRouter::onGetServerConfig()
 {
-    server->on("/getServerConfig", HTTP_GET, [&](AsyncWebServerRequest *request)
-               { configController->getServerConfig(request); });
+    server->on("/getServerConfig", HTTP_GET, [&](PsychicRequest *request, JsonVariant &json)
+               { return configController->getServerConfig(request); });
 }
 
 void ConfigurationRouter::onSetServerConfig()
 {
-    server->on("/setServerConfig", HTTP_PUT, [&](AsyncWebServerRequest *request)
-               { configController->setServerConfig(request); });
+    server->on("/setServerConfig", HTTP_PUT, [&](PsychicRequest *request, JsonVariant &json)
+               { return configController->setServerConfig(request, json); });
 }

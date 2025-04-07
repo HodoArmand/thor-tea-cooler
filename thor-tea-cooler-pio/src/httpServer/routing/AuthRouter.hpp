@@ -7,7 +7,7 @@ class AuthRouter : public Router
 {
 
 private:
-    AsyncWebServer *server;
+    PsychicHttpServer *server;
     AuthController *authController;
 
     void onLogin();
@@ -17,11 +17,11 @@ private:
     void onDelete();
 
 public:
-    AuthRouter(AsyncWebServer *server_, Authorization *auth);
+    AuthRouter(PsychicHttpServer *server_, Authorization *auth);
     ~AuthRouter();
 };
 
-inline AuthRouter::AuthRouter(AsyncWebServer *server_, Authorization *auth)
+inline AuthRouter::AuthRouter(PsychicHttpServer *server_, Authorization *auth)
 {
     server = server_;
     authController = new AuthController(auth);
@@ -39,27 +39,27 @@ AuthRouter::~AuthRouter()
 
 void AuthRouter::onLogin()
 {
-    server->on("/login", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { authController->login(request); });
+    server->on("/login", HTTP_POST, [&](PsychicRequest *request, JsonVariant &json)
+               { return authController->login(request, json); });
 }
 
 void AuthRouter::onLogout()
 {
-    server->on("/logout", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { authController->logout(request); });
+    server->on("/logout", HTTP_POST, [&](PsychicRequest *request)
+               { return authController->logout(request); });
 }
 void AuthRouter::onRegister()
 {
-    server->on("/registerUser", HTTP_POST, [&](AsyncWebServerRequest *request)
-               { authController->registerUser(request); });
+    server->on("/registerUser", HTTP_POST, [&](PsychicRequest *request, JsonVariant &json)
+               { return authController->registerUser(request, json); });
 }
 void AuthRouter::onEdit()
 {
-    server->on("/editUser", HTTP_PUT, [&](AsyncWebServerRequest *request)
-               { authController->editUser(request); });
+    server->on("/editUser", HTTP_PUT, [&](PsychicRequest *request, JsonVariant &json)
+               { return authController->editUser(request, json); });
 }
 void AuthRouter::onDelete()
 {
-    server->on("/deleteUser", HTTP_DELETE, [&](AsyncWebServerRequest *request)
-               { authController->deleteUser(request); });
+    server->on("/deleteUser", HTTP_DELETE, [&](PsychicRequest *request, JsonVariant &json)
+               { return authController->deleteUser(request, json); });
 }

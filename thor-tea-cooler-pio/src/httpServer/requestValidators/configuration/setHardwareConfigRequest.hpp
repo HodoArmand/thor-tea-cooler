@@ -5,7 +5,7 @@
 class SetHardwareConfigRequest : public Request
 {
 public:
-    SetHardwareConfigRequest(AsyncWebServerRequest *request) : Request(request)
+    SetHardwareConfigRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},

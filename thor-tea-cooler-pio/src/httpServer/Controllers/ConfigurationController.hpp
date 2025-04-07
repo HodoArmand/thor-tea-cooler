@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ESPAsyncWebServer.h>
+// #include <ESPPsychicHttpServer.h>
+#include <PsychicHttp.h>
 
 #include "hardware/hardwareConfiguration.hpp"
 #include "network/networkConfiguration.hpp"
@@ -26,14 +27,14 @@ public:
     ConfigurationController(Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_);
     ~ConfigurationController();
 
-    void getHardwareConfig(AsyncWebServerRequest *request_);
-    void setHardwareConfig(AsyncWebServerRequest *request_);
+    esp_err_t getHardwareConfig(PsychicRequest *request_);
+    esp_err_t setHardwareConfig(PsychicRequest *request_, JsonVariant &json);
 
-    void getNetworkConfig(AsyncWebServerRequest *request_);
-    void setNetworkConfig(AsyncWebServerRequest *request_);
+    esp_err_t getNetworkConfig(PsychicRequest *request_);
+    esp_err_t setNetworkConfig(PsychicRequest *request_, JsonVariant &json);
 
-    void getServerConfig(AsyncWebServerRequest *request_);
-    void setServerConfig(AsyncWebServerRequest *request_);
+    esp_err_t getServerConfig(PsychicRequest *request_);
+    esp_err_t setServerConfig(PsychicRequest *request_, JsonVariant &json);
 };
 
 ConfigurationController::ConfigurationController(Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
@@ -48,126 +49,142 @@ ConfigurationController::~ConfigurationController()
 {
 }
 
-inline void ConfigurationController::getHardwareConfig(AsyncWebServerRequest *request_)
+inline esp_err_t ConfigurationController::getHardwareConfig(PsychicRequest *request_)
 {
     ApiRequest request(request_);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else if (!auth->isApiKeyValid(request.getAuthApiKey()))
     {
-        simpleUnauthorizedResponse(request_);
+        response = simpleUnauthorizedResponse(request_);
     }
     else
     {
         String hwConfigValues = hwConfig->printToSerializedPrettyJson();
-        simpleVeryBigResponse(request_, 200, "ok", hwConfigValues);
+        response = simpleResponse(request_, 200, "ok", hwConfigValues);
     }
+
+    return response;
 }
 
-inline void ConfigurationController::setHardwareConfig(AsyncWebServerRequest *request_)
+inline esp_err_t ConfigurationController::setHardwareConfig(PsychicRequest *request_, JsonVariant &json)
 {
-    SetHardwareConfigRequest request(request_);
+    SetHardwareConfigRequest request(request_, json);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else if (!auth->isApiKeyValid(request.getAuthApiKey()))
     {
-        simpleUnauthorizedResponse(request_);
+        response = simpleUnauthorizedResponse(request_);
     }
     else
     {
         hwConfig->setFromJson(request.bodyToJson());
         if (!hwConfig->saveToDisk())
         {
-            simpleResponse(request_, 500, "HardwareConfig save server error.", "The request was processed successfully, but there was a serverside error when saving it. The error is most likely a DB/Disk IO error.");
+            response = simpleResponse(request_, 500, "HardwareConfig save server error.", "The request was processed successfully, but there was a serverside error when saving it. The error is most likely a DB/Disk IO error.");
         }
         else
         {
-            simpleCreatedResponse(request_);
+            response = simpleCreatedResponse(request_);
         }
     }
+
+    return response;
 }
 
-inline void ConfigurationController::getNetworkConfig(AsyncWebServerRequest *request_)
+inline esp_err_t ConfigurationController::getNetworkConfig(PsychicRequest *request_)
 {
     ApiRequest request(request_);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else if (!auth->isApiKeyValid(request.getAuthApiKey()))
     {
-        simpleUnauthorizedResponse(request_);
+        response = simpleUnauthorizedResponse(request_);
     }
     else
     {
         String networkConfigValues = networkConfig->printToSerializedPrettyJson();
-        simpleVeryBigResponse(request_, 200, "ok", networkConfigValues);
+        response = simpleResponse(request_, 200, "ok", networkConfigValues);
     }
+
+    return response;
 }
 
-inline void ConfigurationController::setNetworkConfig(AsyncWebServerRequest *request_)
+inline esp_err_t ConfigurationController::setNetworkConfig(PsychicRequest *request_, JsonVariant &json)
 {
-    SetNetworkConfigRequest request(request_);
+    SetNetworkConfigRequest request(request_, json);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else if (!auth->isApiKeyValid(request.getAuthApiKey()))
     {
-        simpleUnauthorizedResponse(request_);
+        response = simpleUnauthorizedResponse(request_);
     }
     else
     {
         networkConfig->setFromJson(request.bodyToJson());
         if (!networkConfig->saveToDisk())
         {
-            simpleResponse(request_, 500, "NetworkConfig save server error.", "The request was processed successfully, but there was a serverside error when saving it. The error is most likely a DB/Disk IO error.");
+            response = simpleResponse(request_, 500, "NetworkConfig save server error.", "The request was processed successfully, but there was a serverside error when saving it. The error is most likely a DB/Disk IO error.");
         }
         else
         {
-            simpleCreatedResponse(request_);
+            response = simpleCreatedResponse(request_);
         }
     }
+
+    return response;
 }
 
-inline void ConfigurationController::getServerConfig(AsyncWebServerRequest *request_)
+inline esp_err_t ConfigurationController::getServerConfig(PsychicRequest *request_)
 {
     ApiRequest request(request_);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else if (!auth->isApiKeyValid(request.getAuthApiKey()))
     {
-        simpleUnauthorizedResponse(request_);
+        response = simpleUnauthorizedResponse(request_);
     }
     else
     {
         String serverConfigValues = serverConfig->printToSerializedPrettyJson();
-        simpleVeryBigResponse(request_, 200, "ok", serverConfigValues);
+        response = simpleResponse(request_, 200, "ok", serverConfigValues);
     }
+
+    return response;
 }
 
-inline void ConfigurationController::setServerConfig(AsyncWebServerRequest *request_)
+inline esp_err_t ConfigurationController::setServerConfig(PsychicRequest *request_, JsonVariant &json)
 {
-    SetServerConfigRequest request(request_);
+    SetServerConfigRequest request(request_, json);
+    esp_err_t response;
 
     if (!request.validate())
     {
-        validationErrorsResponse(request_, request.validationErrors);
+        response = validationErrorsResponse(request_, request.validationErrors);
     }
     else if (!auth->isApiKeyValid(request.getAuthApiKey()))
     {
-        simpleUnauthorizedResponse(request_);
+        response = simpleUnauthorizedResponse(request_);
     }
     else
     {
@@ -176,18 +193,21 @@ inline void ConfigurationController::setServerConfig(AsyncWebServerRequest *requ
         serverConfig->setFromJson(request.bodyToJson());
         if (!serverConfig->saveToDisk())
         {
-            simpleResponse(request_, 500, "ServerConfig save server error.", "The request was processed successfully, but there was a serverside error when saving it. The error is most likely a DB/Disk IO error.");
+            response = simpleResponse(request_, 500, "ServerConfig save server error.", "The request was processed successfully, but there was a serverside error when saving it. The error is most likely a DB/Disk IO error.");
         }
         else if (apikeyLengthChanged)
         {
             auth->clearApiKeys();
-            simpleResponse(request_, 201, "ok, restarting", "Api key length has been changed, apikeys cleared. Device restarts in 10 seconds.");
+            response = simpleResponse(request_, 201, "ok, restarting", "Api key length has been changed, apikeys cleared. Device restarts in 10 seconds.");
+            // TODO: delays are not allowed in the PsychicHTTP, move this to a fn and call it via pointer.
             delay(10000);
             ESP.restart();
         }
         else
         {
-            simpleCreatedResponse(request_);
+            response = simpleCreatedResponse(request_);
         }
     }
+
+    return response;
 }

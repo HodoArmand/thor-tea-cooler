@@ -1,16 +1,17 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ESPAsyncWebServer.h>
+#include <PsychicHttp.h>
+#include <PsychicHttp.h>
 
 class Router
 {
 private:
-    AsyncWebServer *server;
+    PsychicHttpServer *server;
 
 public:
     Router();
-    Router(AsyncWebServer *server_);
+    Router(PsychicHttpServer *server_);
     ~Router();
 };
 
@@ -18,7 +19,7 @@ inline Router::Router()
 {
 }
 
-Router::Router(AsyncWebServer *server_)
+Router::Router(PsychicHttpServer *server_)
 {
     server = server_;
 }

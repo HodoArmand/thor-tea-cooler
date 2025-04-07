@@ -5,7 +5,7 @@
 class SetNetworkConfigRequest : public Request
 {
 public:
-    SetNetworkConfigRequest(AsyncWebServerRequest *request) : Request(request)
+    SetNetworkConfigRequest(PsychicRequest *request, JsonVariant &json) : Request(request, json)
     {
         rules = {
             {"header", "apiHeader"},
