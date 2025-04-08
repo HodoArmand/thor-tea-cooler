@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Arduino.h>
-// #include <ESPPsychicHttpServer.h>
-#include <PsychicHttp.h>
+#define CONFIG_ESP_HTTPS_SERVER_ENABLE
+#define PSY_ENABLE_SSL true
+#include <PsychicHttpsServer.h>
 
 #include "hardware/hardwareConfiguration.hpp"
 #include "network/networkConfiguration.hpp"

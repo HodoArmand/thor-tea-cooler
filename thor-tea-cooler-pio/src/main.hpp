@@ -3,10 +3,11 @@
 #include <Arduino.h>
 
 #include <WiFi.h>
-// #include <AsyncTCP.h>
 #include "../lib/AsyncTCPQuemod/AsyncTCP.h"
-// #include "ESPPsychicHttpServer.h"
-#include <PsychicHttp.h>
+#define PSY_ENABLE_SSL true
+#define CONFIG_ESP_HTTPS_SERVER_ENABLE
+#include <PsychicHttpsServer.h>
+
 #include "hardware/ttcHardware.hpp"
 #include "network/wifiNetworkAdapter.hpp"
 #include "httpServer/httpApiServer.hpp"

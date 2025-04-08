@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Router.hpp"
+#define PSY_ENABLE_SSL true
 #include "httpServer/Controllers/AuthController.hpp"
 
 class AuthRouter : public Router
 {
 
 private:
-    PsychicHttpServer *server;
+    PsychicHttpsServer *server;
     AuthController *authController;
 
     void onLogin();
@@ -17,11 +18,11 @@ private:
     void onDelete();
 
 public:
-    AuthRouter(PsychicHttpServer *server_, Authorization *auth);
+    AuthRouter(PsychicHttpsServer *server_, Authorization *auth);
     ~AuthRouter();
 };
 
-inline AuthRouter::AuthRouter(PsychicHttpServer *server_, Authorization *auth)
+inline AuthRouter::AuthRouter(PsychicHttpsServer *server_, Authorization *auth)
 {
     server = server_;
     authController = new AuthController(auth);

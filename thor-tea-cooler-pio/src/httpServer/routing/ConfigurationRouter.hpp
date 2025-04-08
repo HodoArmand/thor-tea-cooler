@@ -7,7 +7,7 @@ class ConfigurationRouter : public Router
 {
 
 private:
-    PsychicHttpServer *server;
+    PsychicHttpsServer *server;
 
     Authorization *auth;
     HardwareConfiguration *hwConfig;
@@ -16,7 +16,7 @@ private:
     ConfigurationController *configController;
 
 public:
-    ConfigurationRouter(PsychicHttpServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_);
+    ConfigurationRouter(PsychicHttpsServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_);
     ~ConfigurationRouter();
 
     void onGetHardwareConfig();
@@ -29,7 +29,7 @@ public:
     void onSetServerConfig();
 };
 
-inline ConfigurationRouter::ConfigurationRouter(PsychicHttpServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
+inline ConfigurationRouter::ConfigurationRouter(PsychicHttpsServer *server_, Authorization *auth_, HardwareConfiguration *hwConfig_, NetworkConfiguration *networkConfig_, ServerConfiguration *serverConfig_)
 {
     server = server_;
     auth = auth_;

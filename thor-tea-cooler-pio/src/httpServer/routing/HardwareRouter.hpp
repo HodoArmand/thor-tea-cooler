@@ -8,7 +8,7 @@ class HardwareRouter : public Router
 {
 
 private:
-    PsychicHttpServer *server;
+    PsychicHttpsServer *server;
     HardwareController *hwController;
     ServerSideEventRouter *sse;
 
@@ -25,11 +25,11 @@ private:
     void onRestartMcu();
 
 public:
-    HardwareRouter(PsychicHttpServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_);
+    HardwareRouter(PsychicHttpsServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_);
     ~HardwareRouter();
 };
 
-inline HardwareRouter::HardwareRouter(PsychicHttpServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_)
+inline HardwareRouter::HardwareRouter(PsychicHttpsServer *server_, TtcHardware *hw_, Authorization *auth_, ServerSideEventRouter *sse_)
 {
     server = server_;
 

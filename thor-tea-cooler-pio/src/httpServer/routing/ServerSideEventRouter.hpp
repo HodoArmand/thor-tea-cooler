@@ -9,14 +9,14 @@ private:
     ServerSideEventController *sseController;
 
 public:
-    ServerSideEventRouter(TtcHardware *hw_, PsychicHttpServer *server_, String eventPath);
+    ServerSideEventRouter(TtcHardware *hw_, PsychicHttpsServer *server_, String eventPath);
     ~ServerSideEventRouter();
 
     void sendPing();
     void sendTeaState();
 };
 
-ServerSideEventRouter::ServerSideEventRouter(TtcHardware *hw_, PsychicHttpServer *server_, String eventPath)
+ServerSideEventRouter::ServerSideEventRouter(TtcHardware *hw_, PsychicHttpsServer *server_, String eventPath)
 {
     sseController = new ServerSideEventController(hw_, server_, eventPath);
 }

@@ -2,16 +2,15 @@
 
 #include <Arduino.h>
 #include <PsychicHttp.h>
-#include <PsychicHttp.h>
 
 class Router
 {
 private:
-    PsychicHttpServer *server;
+    PsychicHttpsServer *server;
 
 public:
     Router();
-    Router(PsychicHttpServer *server_);
+    Router(PsychicHttpsServer *server_);
     ~Router();
 };
 
@@ -19,7 +18,7 @@ inline Router::Router()
 {
 }
 
-Router::Router(PsychicHttpServer *server_)
+Router::Router(PsychicHttpsServer *server_)
 {
     server = server_;
 }

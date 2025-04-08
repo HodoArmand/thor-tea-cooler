@@ -1,10 +1,8 @@
 #pragma once
 
-// #include <AsyncTCP.h>
 #include "../lib/AsyncTCPQuemod/AsyncTCP.h"
-// // #include <ESPPsychicHttpServer.h>
-#include <PsychicHttp.h>
-#include <PsychicHttp.h>
+#define PSY_ENABLE_SSL
+#include <PsychicHttpsServer.h>
 
 #include "Authorization.hpp"
 
@@ -34,7 +32,7 @@ public:
 
     TtcHardware *hw;
     Authorization *auth;
-    PsychicHttpServer *server;
+    PsychicHttpsServer *server;
 
     HardwareConfiguration *hwConfig;
     NetworkConfiguration *networkConfig;
@@ -68,7 +66,7 @@ HttpApiServer::HttpApiServer(ServerConfiguration *config_, TtcHardware *hw_, Har
     if (auth->initFileSystem() && auth->loadUsersFromDisk() && auth->loadApiKeysFromDisk())
     {
         setState(AUTH_LOADED);
-        server = new PsychicHttpServer();
+        server = new PsychicHttpsServer();
     }
     else
     {
@@ -87,8 +85,18 @@ inline void HttpApiServer::broadcastTeaState()
 
 void HttpApiServer::initializeApi()
 {
+    // TODO: load SSL cert this from disk
+    // TODO: add to the api config or make its own store/load cfg class.
+    // TODO: watch for PcychicHTTP server updates. In its current form, the HTTPS delayis unacceptable.
+    const char *server_cert = R"(-----BEGIN CERTIFICATE-----
+***cert here***
+-----END CERTIFICATE-----
+)";
+    const char *server_key = R"(-----BEGIN PRIVATE KEY-----
+-----END PRIVATE KEY-----
+)";
     server->config.max_uri_handlers = 100;
-    server->listen(80);
+    server->listen(443, server_cert, server_key);
     server->onNotFound([](PsychicRequest *request)
                        {
         if (request->method() == HTTP_OPTIONS)

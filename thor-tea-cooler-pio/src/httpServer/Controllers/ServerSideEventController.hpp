@@ -2,6 +2,9 @@
 
 #include <Arduino.h>
 #include <PsychicHttp.h>
+#define CONFIG_ESP_HTTPS_SERVER_ENABLE
+#define PSY_ENABLE_SSL true
+#include <PsychicHttpsServer.h>
 
 #include "httpServer/Controllers/Controller.hpp"
 #include "hardware/ttcHardware.hpp"
@@ -10,11 +13,11 @@ class ServerSideEventController : public Controller
 {
 private:
     TtcHardware *hw;
-    PsychicHttpServer *server;
+    PsychicHttpsServer *server;
     PsychicEventSource events;
 
 public:
-    ServerSideEventController(TtcHardware *hw_, PsychicHttpServer *server_, String eventPath);
+    ServerSideEventController(TtcHardware *hw_, PsychicHttpsServer *server_, String eventPath);
     ~ServerSideEventController();
 
     void handleOnConnect();
@@ -23,7 +26,7 @@ public:
     void sendTeaState();
 };
 
-ServerSideEventController::ServerSideEventController(TtcHardware *hw_, PsychicHttpServer *server_, String eventPath)
+ServerSideEventController::ServerSideEventController(TtcHardware *hw_, PsychicHttpsServer *server_, String eventPath)
 {
     this->hw = hw_;
     this->server = server_;

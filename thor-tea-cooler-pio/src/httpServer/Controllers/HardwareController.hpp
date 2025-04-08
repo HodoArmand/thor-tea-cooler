@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Arduino.h>
-#include <PsychicHttp.h>
+#define PSY_ENABLE_SSL true
+#define CONFIG_ESP_HTTPS_SERVER_ENABLE
+#include <PsychicHttpsServer.h>
 
 #include "httpServer/Controllers/Controller.hpp"
 #include "httpServer/Authorization.hpp"
